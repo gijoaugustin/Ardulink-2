@@ -16,35 +16,36 @@ limitations under the License.
 
 package org.ardulink.core;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.ardulink.core.AbstractConnectionBasedLink.Mode.ANY_MESSAGE_RECEIVED;
 import static org.ardulink.core.Pin.analogPin;
 import static org.ardulink.core.Pin.Type.ANALOG;
 import static org.ardulink.core.Pin.Type.DIGITAL;
 import static org.ardulink.core.proto.api.MessageIdHolders.addMessageId;
 import static org.ardulink.util.Throwables.propagate;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.ardulink.util.StopWatch;
-import org.ardulink.util.Throwables;
 import org.ardulink.core.Connection.ListenerAdapter;
 import org.ardulink.core.Pin.AnalogPin;
 import org.ardulink.core.Pin.DigitalPin;
 import org.ardulink.core.events.AnalogPinValueChangedEvent;
 import org.ardulink.core.events.DefaultAnalogPinValueChangedEvent;
 import org.ardulink.core.events.DefaultDigitalPinValueChangedEvent;
+import org.ardulink.core.events.DefaultRawEvent;
 import org.ardulink.core.events.DefaultRplyEvent;
 import org.ardulink.core.events.DigitalPinValueChangedEvent;
 import org.ardulink.core.proto.api.Protocol;
 import org.ardulink.core.proto.api.Protocol.FromArduino;
 import org.ardulink.core.proto.impl.DefaultToArduinoNoTone;
 import org.ardulink.core.proto.impl.FromArduinoPinStateChanged;
+import org.ardulink.core.proto.impl.FromArduinoRaw;
 import org.ardulink.core.proto.impl.FromArduinoReady;
 import org.ardulink.core.proto.impl.FromArduinoReply;
+import org.ardulink.util.StopWatch;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -89,6 +90,9 @@ public abstract class AbstractConnectionBasedLink extends AbstractListenerLink {
 		} else if (fromArduino instanceof FromArduinoReply) {
 			FromArduinoReply reply = (FromArduinoReply) fromArduino;
 			fireReplyReceived(new DefaultRplyEvent(reply.isOk(), reply.getId()));
+		} else if (fromArduino instanceof FromArduinoRaw) {
+			FromArduinoRaw raw = (FromArduinoRaw) fromArduino;
+			fireRawReceived(new DefaultRawEvent(raw.getValue()));
 		} else if (fromArduino instanceof FromArduinoReady) {
 			this.readyMsgReceived = true;
 		} else {

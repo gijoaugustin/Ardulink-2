@@ -30,6 +30,7 @@ import static org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey.POWER_P
 import static org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey.POWER_PIN_SWITCH;
 import static org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey.READY;
 import static org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey.RPLY;
+import static org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey.RAW;
 import static org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey.START_LISTENING_ANALOG;
 import static org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey.START_LISTENING_DIGITAL;
 import static org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey.STOP_LISTENING_ANALOG;
@@ -192,6 +193,8 @@ public class ArdulinkProtocol2 implements Protocol {
 					matcher.group(2).equalsIgnoreCase("ok"), checkNotNull(
 							Longs.tryParse(id), "%s not a long value", id)
 							.longValue());
+		} else if (key == RAW) {
+			return new FromArduinoRaw(matcher.group(2));
 		}
 
 		String pinAndState = matcher.group(2);

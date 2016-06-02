@@ -20,15 +20,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.ardulink.core.events.AnalogPinValueChangedEvent;
 import org.ardulink.core.events.DigitalPinValueChangedEvent;
 import org.ardulink.core.events.EventListener;
 import org.ardulink.core.events.FilteredEventListenerAdapter;
+import org.ardulink.core.events.RawEvent;
+import org.ardulink.core.events.RawListener;
 import org.ardulink.core.events.RplyEvent;
 import org.ardulink.core.events.RplyListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -46,6 +47,7 @@ public abstract class AbstractListenerLink implements Link {
 	private final List<EventListener> eventListeners = new CopyOnWriteArrayList<EventListener>();
 	private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
 	private final List<RplyListener> rplyListeners = new CopyOnWriteArrayList<RplyListener>();
+	private final List<RawListener> rawListeners = new CopyOnWriteArrayList<RawListener>();
 
 	private boolean closed;
 
@@ -86,6 +88,18 @@ public abstract class AbstractListenerLink implements Link {
 		return this;
 	}
 
+	@Override
+	public Link addRawListener(RawListener listener) throws IOException {
+		this.rawListeners.add(listener);
+		return this;
+	}
+
+	@Override
+	public Link removeRawListener(RawListener listener) throws IOException {
+		this.rawListeners.remove(listener);
+		return this;
+	}
+
 	public void fireStateChanged(AnalogPinValueChangedEvent event) {
 		for (EventListener eventListener : this.eventListeners) {
 			try {
@@ -112,6 +126,16 @@ public abstract class AbstractListenerLink implements Link {
 				rplyListener.rplyReceived(event);
 			} catch (Exception e) {
 				logger.error("EventListener {} failure", rplyListener, e);
+			}
+		}
+	}
+
+	public void fireRawReceived(RawEvent event) {
+		for (RawListener rawListener : this.rawListeners) {
+			try {
+				rawListener.rawReceived(event);
+			} catch (Exception e) {
+				logger.error("EventListener {} failure", rawListener, e);
 			}
 		}
 	}

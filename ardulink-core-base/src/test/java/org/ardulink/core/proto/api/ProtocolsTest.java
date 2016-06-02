@@ -17,11 +17,16 @@ limitations under the License.
 package org.ardulink.core.proto.api;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.ardulink.core.proto.api.Protocol.FromArduino;
+import org.ardulink.core.proto.impl.ArdulinkProtocol2;
+import org.ardulink.core.proto.impl.FromArduinoRaw;
 import org.junit.Test;
 
 /**
@@ -39,6 +44,19 @@ public class ProtocolsTest {
 		assertThat(
 				new HashSet<String>(Protocols.names()),
 				is(new HashSet<String>(Arrays.asList("ardulink2", "dummyProto"))));
+	}
+	
+	@Test
+	public void ardulinkProtocol2ReceiveRaw() {
+		Protocol protocol = ArdulinkProtocol2.instance();
+		
+		String fromArduinoRawMessage = "alp://raw/custom=w/some=32";
+		
+		FromArduino fromArduino = protocol.fromArduino(fromArduinoRawMessage.getBytes());
+		
+		assertThat(fromArduino, instanceOf(FromArduinoRaw.class));
+		assertEquals(((FromArduinoRaw)fromArduino).getValue().toString(), "custom=w/some=32");
+		
 	}
 
 }
