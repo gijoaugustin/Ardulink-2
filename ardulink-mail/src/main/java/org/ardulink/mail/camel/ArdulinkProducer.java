@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
+ */
 
 package org.ardulink.mail.camel;
 
@@ -99,11 +99,17 @@ public class ArdulinkProducer extends DefaultProducer {
 
 	private Optional<String> process(Message message) {
 		String from = message.getHeader("From", String.class);
-		checkState(from != null && !from.isEmpty(), "No from set in message");
-		checkState(validFroms.contains(from),
-				"From user %s not a valid from address", from);
+		if (!validFroms.isEmpty()) {
+			checkState(from != null && !from.isEmpty(),
+					"No from set in message");
+			checkState(validFroms.contains(from),
+					"From user %s not a valid from address", from);
+		}
 
-		checkState(message.getBody() instanceof String, "Body not a String");
+		checkState(
+				checkNotNull(message.getBody(), "body must not be null") instanceof String,
+				"Body has type %s (expected String)", message.getBody()
+						.getClass());
 		String commandName = (String) message.getBody();
 		checkState(!commandName.isEmpty(), "Body not set");
 

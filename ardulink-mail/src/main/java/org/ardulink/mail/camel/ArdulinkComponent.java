@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
+ */
 
 package org.ardulink.mail.camel;
 
@@ -40,7 +40,7 @@ import org.ardulink.util.Optional;
  * [adsense]
  *
  */
-/*, consumerClass = ArdulinkConsumer.class*/
+/* , consumerClass = ArdulinkConsumer.class */
 @UriEndpoint(scheme = "ardulink", syntax = "ardulink:type", title = "Ardulink Link")
 public class ArdulinkComponent extends UriEndpointComponent {
 
@@ -57,7 +57,10 @@ public class ArdulinkComponent extends UriEndpointComponent {
 		ArdulinkEndpoint.Config config = new ArdulinkEndpoint.Config();
 		config.setType(remaining);
 		config.setTypeParams(getOptional(parameters, "linkparams").orNull());
-		config.setValidFroms(get(parameters, "validfroms").split("\\;"));
+		Optional<String> validfroms = getOptional(parameters, "validfroms");
+		if (validfroms.isPresent()) {
+			config.setValidFroms(validfroms.get().split("\\;"));
+		}
 
 		handleScenarios(parameters, config);
 
@@ -97,11 +100,6 @@ public class ArdulinkComponent extends UriEndpointComponent {
 		} else {
 			throw new IllegalStateException("Unknown pin type " + pinType);
 		}
-	}
-
-	private String get(Map<String, Object> parameters, String key) {
-		return getOptional(parameters, key)
-				.getOrThrow("%s not configured", key);
 	}
 
 	private Optional<String> getOptional(Map<String, Object> parameters,

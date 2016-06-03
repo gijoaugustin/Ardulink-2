@@ -12,11 +12,13 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
+ */
 
 package org.ardulink.mail.camel;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -45,7 +47,7 @@ public class ArdulinkEndpoint extends DefaultEndpoint implements
 
 		private String type;
 		private String typeParams;
-		private List<String> validfroms;
+		private List<String> validfroms = Collections.emptyList();
 		private ListMultiMap<String, Command> commands = new ListMultiMap<String, Command>();
 
 		public void setValidFroms(String... validfroms) {
