@@ -15,6 +15,10 @@ limitations under the License.
  */
 package org.ardulink.core.messages.api;
 
+import org.ardulink.core.linkmanager.LinkConfig;
+import org.ardulink.core.proto.api.Protocol;
+import org.ardulink.core.proto.api.Protocols;
+
 /**
  * [ardulinktitle] [ardulinkversion]
  * 
@@ -23,6 +27,17 @@ package org.ardulink.core.messages.api;
  * [adsense]
  *
  */
-public interface InMessageReady extends InMessage {
+public class DummyLinkConfig4LinkAdapter implements LinkConfig {
 
+	public Protocol protocol;
+
+	@Named("proto")
+	public void setProtocol(String protocol) {
+		this.protocol = Protocols.getByName(protocol);
+	}
+
+	public Protocol getProto() {
+		return protocol;
+	}
+	
 }

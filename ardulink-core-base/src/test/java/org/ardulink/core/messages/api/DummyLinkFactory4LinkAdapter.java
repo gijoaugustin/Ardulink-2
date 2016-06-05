@@ -15,6 +15,11 @@ limitations under the License.
  */
 package org.ardulink.core.messages.api;
 
+import org.ardulink.core.ConnectionBasedLink;
+import org.ardulink.core.linkmanager.DummyConnection;
+import org.ardulink.core.linkmanager.DummyLinkConfig;
+import org.ardulink.core.linkmanager.LinkFactory;
+
 /**
  * [ardulinktitle] [ardulinkversion]
  * 
@@ -23,6 +28,21 @@ package org.ardulink.core.messages.api;
  * [adsense]
  *
  */
-public interface InMessageReady extends InMessage {
+public class DummyLinkFactory4LinkAdapter implements LinkFactory<DummyLinkConfig4LinkAdapter> {
+
+	@Override
+	public String getName() {
+		return "dummyLink4LinkAdapter";
+	}
+
+	@Override
+	public ConnectionBasedLink newLink(DummyLinkConfig4LinkAdapter config) {
+		return new ConnectionBasedLink(new DummyConnection4LinkAdapter(), config.protocol);
+	}
+
+	@Override
+	public DummyLinkConfig4LinkAdapter newLinkConfig() {
+		return new DummyLinkConfig4LinkAdapter();
+	}
 
 }
