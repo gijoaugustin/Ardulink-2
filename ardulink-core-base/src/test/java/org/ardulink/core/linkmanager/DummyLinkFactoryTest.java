@@ -183,7 +183,7 @@ public class DummyLinkFactoryTest {
 		assertThat(
 				connectionManager.listURIs(),
 				is(links("ardulink://dummyLink", "ardulink://dummyLink2",
-						"ardulink://dependendAttributes")));
+						"ardulink://dependendAttributes", "ardulink://dummyLink4LinkAdapter")));
 	}
 
 	private List<URI> links(String... links) {
