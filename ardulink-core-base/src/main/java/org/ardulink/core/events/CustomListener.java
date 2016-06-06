@@ -23,8 +23,8 @@ package org.ardulink.core.events;
  * [adsense]
  *
  */
-public interface RawEvent {
+public interface CustomListener {
 	
-	Object getValue();
+	void customEventReceived(CustomEvent e);
 
 }

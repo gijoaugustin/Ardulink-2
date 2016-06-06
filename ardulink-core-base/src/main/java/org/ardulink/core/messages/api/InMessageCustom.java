@@ -23,7 +23,7 @@ package org.ardulink.core.messages.api;
  * [adsense]
  *
  */
-public interface InMessageRaw extends InMessage {
+public interface InMessageCustom extends InMessage {
 	
 	Object getValue();
 

@@ -35,14 +35,14 @@ import org.ardulink.core.Pin.DigitalPin;
 import org.ardulink.core.events.AnalogPinValueChangedEvent;
 import org.ardulink.core.events.DefaultAnalogPinValueChangedEvent;
 import org.ardulink.core.events.DefaultDigitalPinValueChangedEvent;
-import org.ardulink.core.events.DefaultRawEvent;
+import org.ardulink.core.events.DefaultCustomEvent;
 import org.ardulink.core.events.DefaultRplyEvent;
 import org.ardulink.core.events.DigitalPinValueChangedEvent;
 import org.ardulink.core.proto.api.Protocol;
 import org.ardulink.core.proto.api.Protocol.FromArduino;
 import org.ardulink.core.proto.impl.DefaultToArduinoNoTone;
 import org.ardulink.core.proto.impl.FromArduinoPinStateChanged;
-import org.ardulink.core.proto.impl.FromArduinoRaw;
+import org.ardulink.core.proto.impl.FromArduinoCustom;
 import org.ardulink.core.proto.impl.FromArduinoReady;
 import org.ardulink.core.proto.impl.FromArduinoReply;
 import org.ardulink.util.StopWatch;
@@ -90,9 +90,9 @@ public abstract class AbstractConnectionBasedLink extends AbstractListenerLink {
 		} else if (fromArduino instanceof FromArduinoReply) {
 			FromArduinoReply reply = (FromArduinoReply) fromArduino;
 			fireReplyReceived(new DefaultRplyEvent(reply.isOk(), reply.getId()));
-		} else if (fromArduino instanceof FromArduinoRaw) {
-			FromArduinoRaw raw = (FromArduinoRaw) fromArduino;
-			fireRawReceived(new DefaultRawEvent(raw.getValue()));
+		} else if (fromArduino instanceof FromArduinoCustom) {
+			FromArduinoCustom custom_event = (FromArduinoCustom) fromArduino;
+			fireCustomReceived(new DefaultCustomEvent(custom_event.getValue()));
 		} else if (fromArduino instanceof FromArduinoReady) {
 			this.readyMsgReceived = true;
 		} else {

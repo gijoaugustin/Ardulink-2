@@ -13,7 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package org.ardulink.core.events;
+package org.ardulink.core.messages.impl;
+
+import org.ardulink.core.messages.api.InMessageCustom;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -23,11 +25,11 @@ package org.ardulink.core.events;
  * [adsense]
  *
  */
-public class DefaultRawEvent implements RawEvent {
+public class DefaultInMessageCustom implements InMessageCustom {
 
 	private final Object value;
-	
-	public DefaultRawEvent(Object value) {
+
+	public DefaultInMessageCustom(final Object value) {
 		this.value = value;
 	}
 

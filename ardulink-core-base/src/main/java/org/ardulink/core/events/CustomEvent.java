@@ -13,9 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package org.ardulink.core.proto.impl;
-
-import org.ardulink.core.proto.api.Protocol.FromArduino;
+package org.ardulink.core.events;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -25,16 +23,8 @@ import org.ardulink.core.proto.api.Protocol.FromArduino;
  * [adsense]
  *
  */
-public class FromArduinoRaw implements FromArduino {
+public interface CustomEvent {
 	
-	private final Object value;
-
-	public FromArduinoRaw(Object value) {
-		this.value = value;
-	}
-
-	public Object getValue() {
-		return value;
-	}
+	Object getValue();
 
 }

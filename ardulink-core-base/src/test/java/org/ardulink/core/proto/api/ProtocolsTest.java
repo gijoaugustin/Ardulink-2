@@ -26,7 +26,7 @@ import java.util.HashSet;
 
 import org.ardulink.core.proto.api.Protocol.FromArduino;
 import org.ardulink.core.proto.impl.ArdulinkProtocol2;
-import org.ardulink.core.proto.impl.FromArduinoRaw;
+import org.ardulink.core.proto.impl.FromArduinoCustom;
 import org.junit.Test;
 
 /**
@@ -47,15 +47,15 @@ public class ProtocolsTest {
 	}
 	
 	@Test
-	public void ardulinkProtocol2ReceiveRaw() {
+	public void ardulinkProtocol2ReceiveCustomEvent() {
 		Protocol protocol = ArdulinkProtocol2.instance();
 		
-		String fromArduinoRawMessage = "alp://raw/custom=w/some=32";
+		String fromArduinoCustomEventMessage = "alp://cevnt/foo=w/some=42";
 		
-		FromArduino fromArduino = protocol.fromArduino(fromArduinoRawMessage.getBytes());
+		FromArduino fromArduino = protocol.fromArduino(fromArduinoCustomEventMessage.getBytes());
 		
-		assertThat(fromArduino, instanceOf(FromArduinoRaw.class));
-		assertEquals(((FromArduinoRaw)fromArduino).getValue().toString(), "custom=w/some=32");
+		assertThat(fromArduino, instanceOf(FromArduinoCustom.class));
+		assertEquals(((FromArduinoCustom)fromArduino).getValue().toString(), "foo=w/some=42");
 		
 	}
 

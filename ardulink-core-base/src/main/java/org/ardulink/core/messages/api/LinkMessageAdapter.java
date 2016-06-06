@@ -28,15 +28,15 @@ import org.ardulink.core.events.AnalogPinValueChangedEvent;
 import org.ardulink.core.events.DigitalPinValueChangedEvent;
 import org.ardulink.core.events.EventListener;
 import org.ardulink.core.events.PinValueChangedEvent;
-import org.ardulink.core.events.RawEvent;
-import org.ardulink.core.events.RawListener;
+import org.ardulink.core.events.CustomEvent;
+import org.ardulink.core.events.CustomListener;
 import org.ardulink.core.events.RplyEvent;
 import org.ardulink.core.events.RplyListener;
 import org.ardulink.core.messages.events.api.InMessageEvent;
 import org.ardulink.core.messages.events.api.InMessageListener;
 import org.ardulink.core.messages.events.impl.DefaultInMessageEvent;
 import org.ardulink.core.messages.impl.DefaultInMessagePinStateChanged;
-import org.ardulink.core.messages.impl.DefaultInMessageRaw;
+import org.ardulink.core.messages.impl.DefaultInMessageCustom;
 import org.ardulink.core.messages.impl.DefaultInMessageReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public class LinkMessageAdapter {
 		this.link = link;
 		this.linkListener = new LinkListener();
 		link.addListener(linkListener);
-		link.addRawListener(linkListener);
+		link.addCustomListener(linkListener);
 		link.addRplyListener(linkListener);
 	}
 
@@ -151,7 +151,7 @@ public class LinkMessageAdapter {
 	}
 
 
-	private class LinkListener implements RawListener, RplyListener, EventListener {
+	private class LinkListener implements CustomListener, RplyListener, EventListener {
 		
 		private final List<InMessageListener> inMessageListeners = new CopyOnWriteArrayList<InMessageListener>();
 		
@@ -182,8 +182,8 @@ public class LinkMessageAdapter {
 		}
 
 		@Override
-		public void rawReceived(RawEvent event) {
-			InMessage inMessage = new DefaultInMessageRaw(event.getValue());
+		public void customEventReceived(CustomEvent event) {
+			InMessage inMessage = new DefaultInMessageCustom(event.getValue());
 			InMessageEvent inMessageEvent = new DefaultInMessageEvent(inMessage);
 
 			fireInMessageReceived(inMessageEvent);

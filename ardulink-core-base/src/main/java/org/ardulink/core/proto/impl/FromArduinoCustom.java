@@ -13,7 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package org.ardulink.core.events;
+package org.ardulink.core.proto.impl;
+
+import org.ardulink.core.proto.api.Protocol.FromArduino;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -23,8 +25,16 @@ package org.ardulink.core.events;
  * [adsense]
  *
  */
-public interface RawListener {
+public class FromArduinoCustom implements FromArduino {
 	
-	void rawReceived(RawEvent e);
+	private final Object value;
+
+	public FromArduinoCustom(Object value) {
+		this.value = value;
+	}
+
+	public Object getValue() {
+		return value;
+	}
 
 }
