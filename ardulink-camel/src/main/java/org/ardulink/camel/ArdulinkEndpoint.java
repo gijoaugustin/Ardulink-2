@@ -1,6 +1,6 @@
 package org.ardulink.camel;
 
-import java.net.URI;
+import java.io.IOException;
 import java.util.Map;
 
 import org.apache.camel.Consumer;
@@ -10,14 +10,22 @@ import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.ardulink.core.Link;
 import org.ardulink.core.linkmanager.LinkManager;
+import org.ardulink.core.messages.api.LinkMessageAdapter;
 import org.ardulink.util.URIs;
 
 public class ArdulinkEndpoint extends DefaultEndpoint implements MultipleConsumersSupport {
 
 	private Link link;
+	private LinkMessageAdapter linkMessageAdapter;
 	
 	public ArdulinkEndpoint(String uri, String remaining, Map<String, Object> parameters) {
 		link = LinkManager.getInstance().getConfigurer(URIs.newURI(uri)).newLink();
+		try {
+			linkMessageAdapter = new LinkMessageAdapter(link);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IllegalStateException("Link Message adapter init fails", e);
+		}
 	}
 
 	@Override
@@ -47,4 +55,9 @@ public class ArdulinkEndpoint extends DefaultEndpoint implements MultipleConsume
 	public Link getLink() {
 		return link;
 	}
+
+	public LinkMessageAdapter getLinkMessageAdapter() {
+		return linkMessageAdapter;
+	}
+	
 }

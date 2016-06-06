@@ -1,23 +1,22 @@
 package org.ardulink.camel;
 
+import static org.ardulink.util.Preconditions.checkNotNull;
+import static org.ardulink.util.Preconditions.checkState;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
-import org.ardulink.core.Link;
-import org.ardulink.core.Pin;
-import org.ardulink.core.Pin.AnalogPin;
-import org.ardulink.core.Pin.DigitalPin;
-import org.ardulink.core.proto.api.ToArduinoCustomMessage;
-import org.ardulink.core.proto.api.ToArduinoPinEvent;
+import org.ardulink.core.messages.api.LinkMessageAdapter;
+import org.ardulink.core.messages.api.OutMessage;
 
 public class ArdulinkProducer extends DefaultProducer {
 
-	private Link link;
+	private LinkMessageAdapter linkMessageAdapter;
 	
 	public ArdulinkProducer(ArdulinkEndpoint endpoint) {
 		super(endpoint);
 		
-		link = endpoint.getLink();
+		linkMessageAdapter = endpoint.getLinkMessageAdapter();
 	}
 
 	@Override
@@ -25,19 +24,9 @@ public class ArdulinkProducer extends DefaultProducer {
 		Message message = exchange.getIn();
 		Object body = message.getBody();
 		
-		// TODO could be convenient define a ToArduino generic message interface
-		// in this way we could use a type converter
-		if(body instanceof ToArduinoPinEvent) {
-			ToArduinoPinEvent event = (ToArduinoPinEvent)body;
-			if(event.getPin().is(Pin.Type.DIGITAL)) {
-				link.switchDigitalPin((DigitalPin)event.getPin(), (Boolean)event.getValue());
-			} else {
-				link.switchAnalogPin((AnalogPin)event.getPin(), (Integer)event.getValue());
-			}
-		} else if(body instanceof ToArduinoCustomMessage) {
-			ToArduinoCustomMessage customMessage = (ToArduinoCustomMessage)body;
-			link.sendCustomMessage(customMessage.getMessages());
-		}
-	}
+		checkNotNull(body, "Camel body message is null");
+		checkState(body instanceof OutMessage, "Expected an OutMessage as body obtained: %s", body.getClass().getCanonicalName());
 
+		linkMessageAdapter.sendMessage((OutMessage)body);
+	}
 }
