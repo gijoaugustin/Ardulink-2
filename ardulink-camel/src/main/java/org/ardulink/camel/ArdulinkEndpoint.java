@@ -18,7 +18,8 @@ public class ArdulinkEndpoint extends DefaultEndpoint implements MultipleConsume
 	private Link link;
 	private LinkMessageAdapter linkMessageAdapter;
 	
-	public ArdulinkEndpoint(String uri, String remaining, Map<String, Object> parameters) {
+	public ArdulinkEndpoint(ArdulinkComponent ardulinkComponent, String uri, String remaining, Map<String, Object> parameters) {
+		super(uri, ardulinkComponent);
 		link = LinkManager.getInstance().getConfigurer(URIs.newURI(uri)).newLink();
 		try {
 			linkMessageAdapter = new LinkMessageAdapter(link);

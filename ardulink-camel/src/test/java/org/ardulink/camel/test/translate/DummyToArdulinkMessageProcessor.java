@@ -12,14 +12,14 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
-package org.ardulink.camel;
+ */
+package org.ardulink.camel.test.translate;
 
-import java.util.Map;
-
-import org.apache.camel.Endpoint;
-import org.apache.camel.impl.UriEndpointComponent;
-import org.apache.camel.spi.UriEndpoint;
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.Processor;
+import org.ardulink.core.messages.api.OutMessage;
+import org.ardulink.core.messages.impl.DefaultOutMessageCustom;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -29,18 +29,23 @@ import org.apache.camel.spi.UriEndpoint;
  * [adsense]
  *
  */
-@UriEndpoint(scheme = "ardulink", syntax = "ardulink:type", title = "Ardulink Link")
-public class ArdulinkComponent extends UriEndpointComponent {
-
-	public ArdulinkComponent() {
-		super(ArdulinkEndpoint.class);
-	}
-
+public class DummyToArdulinkMessageProcessor implements Processor{
+	
 	@Override
-	protected Endpoint createEndpoint(String uri, String remaining,	Map<String, Object> parameters) throws Exception {
-		ArdulinkEndpoint endpoint = new ArdulinkEndpoint(this, uri, remaining, parameters);
+	public void process(Exchange exchange) throws Exception {
 		
-		return endpoint;
+		Message message = exchange.getIn();
+		String dummyMessage = message.getBody(String.class);
+
+		OutMessage outMessage = null;
+		
+		if("send Custom Message".equals(dummyMessage)) {
+			outMessage = new DefaultOutMessageCustom("dummy");
+			message.setBody(outMessage);
+		} else {
+			message.setFault(true);
+		}
+		
 	}
 
 }
