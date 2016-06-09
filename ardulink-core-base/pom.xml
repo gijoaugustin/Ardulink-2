@@ -19,7 +19,8 @@
 					<show>public</show>
 					<reportOutputDirectory>${project.basedir}/../deploy-javadocutils/generated</reportOutputDirectory>
 					<destDir>ardulink-core-base</destDir>
-					<!-- Why do I have to put this property to false just here? Why do other packages work? -->
+					<!-- Why do I have to put this property to false just here? Why do other 
+						packages work? -->
 					<failOnError>false</failOnError>
 				</configuration>
 			</plugin>
@@ -54,6 +55,12 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

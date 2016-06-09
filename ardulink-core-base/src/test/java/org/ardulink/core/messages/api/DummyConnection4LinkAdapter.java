@@ -15,16 +15,12 @@ limitations under the License.
  */
 package org.ardulink.core.messages.api;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.ardulink.core.Connection;
-import org.ardulink.core.Connection.Listener;
-import org.ardulink.core.linkmanager.DummyConnection;
-import org.ardulink.core.linkmanager.DummyLinkConfig;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -35,18 +31,18 @@ import org.ardulink.core.linkmanager.DummyLinkConfig;
  *
  */
 public class DummyConnection4LinkAdapter implements Connection {
-	
-	private static ByteArrayOutputStream STREAM = new ByteArrayOutputStream();
+
+	private final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 	private final List<Listener> listeners = new ArrayList<Listener>();
 
 	@Override
 	public void close() throws IOException {
-		STREAM.close();
+		stream.close();
 	}
 
 	@Override
 	public void write(byte[] bytes) throws IOException {
-		STREAM.write(bytes);
+		stream.write(bytes);
 	}
 
 	@Override
@@ -59,7 +55,7 @@ public class DummyConnection4LinkAdapter implements Connection {
 		this.listeners.remove(listener);
 	}
 
-	public static byte[] getWritten() {
-		return STREAM.toByteArray();
+	public byte[] getWritten() {
+		return stream.toByteArray();
 	}
 }
