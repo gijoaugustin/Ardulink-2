@@ -18,8 +18,8 @@ package org.ardulink.camel.test.translate;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.ardulink.core.messages.api.OutMessage;
 import org.ardulink.core.messages.impl.DefaultOutMessageCustom;
+import org.ardulink.util.Optional;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -29,23 +29,30 @@ import org.ardulink.core.messages.impl.DefaultOutMessageCustom;
  * [adsense]
  *
  */
-public class DummyToArdulinkMessageProcessor implements Processor{
-	
+public class DummyToArdulinkMessageProcessor implements Processor {
+
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
-		Message message = exchange.getIn();
-		String dummyMessage = message.getBody(String.class);
-
-		OutMessage outMessage = null;
-		
-		if("send Custom Message".equals(dummyMessage)) {
-			outMessage = new DefaultOutMessageCustom("dummy");
-			message.setBody(outMessage);
+		Message in = exchange.getIn();
+		Message out = getMessageTarget(exchange);
+		String body = in.getBody(String.class);
+		if ("send Custom Message".equals(body)) {
+			out.setBody(new DefaultOutMessageCustom("dummy"));
 		} else {
-			message.setFault(true);
+			out.setFault(true);
 		}
-		
+
+	}
+
+	private Message getMessageTarget(Exchange exchange) {
+		Message in = exchange.getIn();
+		if (exchange.getPattern().isOutCapable()) {
+			Message out = exchange.getOut();
+			out.setHeaders(in.getHeaders());
+			out.setAttachments(in.getAttachments());
+			return out;
+		}
+		return in;
 	}
 
 }

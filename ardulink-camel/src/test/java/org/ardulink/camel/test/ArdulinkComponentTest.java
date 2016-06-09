@@ -15,22 +15,20 @@ limitations under the License.
  */
 package org.ardulink.camel.test;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.concurrent.TimeUnit;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.ardulink.camel.ArdulinkEndpoint;
 import org.ardulink.camel.test.translate.DummyToArdulinkMessageProcessor;
-import org.junit.After;
-import org.junit.Before;
+import org.ardulink.core.Link;
+import org.ardulink.core.virtual.VirtualLink;
+import org.hamcrest.CoreMatchers;
+import org.junit.Ignore;
 import org.junit.Test;
-
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -42,49 +40,61 @@ import org.junit.Test;
  */
 public class ArdulinkComponentTest {
 
-	private static final String virtualLinkURI = "ardulink://virtual";
+	private static final String IN = "direct:in";
+	private static final String OUT = "mock:result";
 
-	@Before
-	public void setUp() throws URISyntaxException {
-	}
-	
-	@After
-	public void tearDown() throws IOException {
+	@Test
+	public void canGetRegisteredXXXXXXXXXX() {
+		ArdulinkEndpoint endpoint = new DefaultCamelContext().getEndpoint(
+				"ardulink://virtual", ArdulinkEndpoint.class);
+		Link link = endpoint.getLink();
+		assertThat(link.getClass().getName(), is(VirtualLink.class.getName()));
 	}
 
 	@Test
-	public void canGetEndpoint() throws Exception {
-		CamelContext context = new DefaultCamelContext();
-		
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() {
-				from("direct:in").to(virtualLinkURI);
-			}
-		});
-		ArdulinkEndpoint endpoint = context.getEndpoint(virtualLinkURI, ArdulinkEndpoint.class);
-		
-		assertNotNull(endpoint);
-	}
-	
-	@Test
-	public void canProcessAMessage() throws Exception {
-		
-		CamelContext context = new DefaultCamelContext();
-		ProducerTemplate template = context.createProducerTemplate();
-		
-		context.addRoutes(new RouteBuilder() {
-			@Override
-			public void configure() {
-				from("direct:in").bean(new DummyToArdulinkMessageProcessor()).to(virtualLinkURI);
-			}
-		});
-
+	public void canProcessCustomMessage() throws Exception {
+		CamelContext context = addProcessorBeanRoute(new DefaultCamelContext());
 		context.start();
-		template.sendBody("direct:in", "send Custom Message");
-		template.sendBody("direct:in", "this should do nothing");
-		context.stop();
-		
-		// TODO modify a little virtual link to save in a static array messages and the add assertThat statements for this test.
+		try {
+			MockEndpoint mockEndpoint = context.getEndpoint(OUT,
+					MockEndpoint.class);
+			mockEndpoint.expectedBodiesReceived("dummy");
+			send(context, "send Custom Message");
+			mockEndpoint.assertIsSatisfied();
+		} finally {
+			context.stop();
+		}
 	}
+
+	@Test
+	@Ignore
+	public void setFaultFlagsOnUnkwnonMessage() throws Exception {
+		CamelContext context = addProcessorBeanRoute(new DefaultCamelContext());
+		context.start();
+		try {
+			send(context, "this should do nothing");
+			MockEndpoint mockEndpoint = context.getEndpoint(OUT,
+					MockEndpoint.class);
+			// ...
+			mockEndpoint.assertIsSatisfied();
+		} finally {
+			context.stop();
+		}
+	}
+
+	private void send(CamelContext context, String body) {
+		context.createProducerTemplate().sendBody(IN, body);
+	}
+
+	private CamelContext addProcessorBeanRoute(CamelContext context)
+			throws Exception {
+		context.addRoutes(new RouteBuilder() {
+			@Override
+			public void configure() {
+				from(IN).bean(new DummyToArdulinkMessageProcessor()).to(OUT);
+			}
+		});
+		return context;
+	}
+
 }

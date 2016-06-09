@@ -11,36 +11,35 @@ import org.apache.camel.impl.DefaultEndpoint;
 import org.ardulink.core.Link;
 import org.ardulink.core.linkmanager.LinkManager;
 import org.ardulink.core.messages.api.LinkMessageAdapter;
+import org.ardulink.util.Throwables;
 import org.ardulink.util.URIs;
 
-public class ArdulinkEndpoint extends DefaultEndpoint implements MultipleConsumersSupport {
+public class ArdulinkEndpoint extends DefaultEndpoint implements
+		MultipleConsumersSupport {
 
-	private Link link;
+	private final Link link;
 	private LinkMessageAdapter linkMessageAdapter;
-	
-	public ArdulinkEndpoint(ArdulinkComponent ardulinkComponent, String uri, String remaining, Map<String, Object> parameters) {
+
+	public ArdulinkEndpoint(ArdulinkComponent ardulinkComponent, String uri,
+			String remaining, Map<String, Object> parameters) {
 		super(uri, ardulinkComponent);
-		link = LinkManager.getInstance().getConfigurer(URIs.newURI(uri)).newLink();
+		link = LinkManager.getInstance().getConfigurer(URIs.newURI(uri))
+				.newLink();
 		try {
 			linkMessageAdapter = new LinkMessageAdapter(link);
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IllegalStateException("Link Message adapter init fails", e);
+			throw Throwables.propagate(e);
 		}
 	}
 
 	@Override
 	public Producer createProducer() throws Exception {
-		ArdulinkProducer producer = new ArdulinkProducer(this);
-
-		return producer;
+		return new ArdulinkProducer(this);
 	}
 
 	@Override
 	public Consumer createConsumer(Processor processor) throws Exception {
-		ArdulinkConsumer consumer = new ArdulinkConsumer(this, processor);
-
-		return consumer;
+		return new ArdulinkConsumer(this, processor);
 	}
 
 	@Override
@@ -60,5 +59,5 @@ public class ArdulinkEndpoint extends DefaultEndpoint implements MultipleConsume
 	public LinkMessageAdapter getLinkMessageAdapter() {
 		return linkMessageAdapter;
 	}
-	
+
 }
