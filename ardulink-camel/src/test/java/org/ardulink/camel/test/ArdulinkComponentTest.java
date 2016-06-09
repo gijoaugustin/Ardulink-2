@@ -26,7 +26,6 @@ import org.ardulink.camel.ArdulinkEndpoint;
 import org.ardulink.camel.test.translate.DummyToArdulinkMessageProcessor;
 import org.ardulink.core.Link;
 import org.ardulink.core.virtual.VirtualLink;
-import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -56,8 +55,7 @@ public class ArdulinkComponentTest {
 		CamelContext context = addProcessorBeanRoute(new DefaultCamelContext());
 		context.start();
 		try {
-			MockEndpoint mockEndpoint = context.getEndpoint(OUT,
-					MockEndpoint.class);
+			MockEndpoint mockEndpoint = getMockEndpoint(context);
 			mockEndpoint.expectedBodiesReceived("dummy");
 			send(context, "send Custom Message");
 			mockEndpoint.assertIsSatisfied();
@@ -72,9 +70,8 @@ public class ArdulinkComponentTest {
 		CamelContext context = addProcessorBeanRoute(new DefaultCamelContext());
 		context.start();
 		try {
+			MockEndpoint mockEndpoint = getMockEndpoint(context);
 			send(context, "this should do nothing");
-			MockEndpoint mockEndpoint = context.getEndpoint(OUT,
-					MockEndpoint.class);
 			// ...
 			mockEndpoint.assertIsSatisfied();
 		} finally {
@@ -84,6 +81,10 @@ public class ArdulinkComponentTest {
 
 	private void send(CamelContext context, String body) {
 		context.createProducerTemplate().sendBody(IN, body);
+	}
+
+	private MockEndpoint getMockEndpoint(CamelContext context) {
+		return context.getEndpoint(OUT, MockEndpoint.class);
 	}
 
 	private CamelContext addProcessorBeanRoute(CamelContext context)
