@@ -19,7 +19,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.ardulink.core.messages.impl.DefaultToDeviceMessageCustom;
-import org.ardulink.util.Optional;
 
 /**
  * [ardulinktitle] [ardulinkversion]
