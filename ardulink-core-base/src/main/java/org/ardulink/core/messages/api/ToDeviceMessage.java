@@ -25,6 +25,6 @@ package org.ardulink.core.messages.api;
  * [adsense]
  *
  */
-public interface OutMessage extends Message {
+public interface ToDeviceMessage extends Message {
 
 }

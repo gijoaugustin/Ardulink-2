@@ -17,7 +17,7 @@ limitations under the License.
 package org.ardulink.core.messages.impl;
 
 import org.ardulink.core.Pin;
-import org.ardulink.core.proto.api.ToArduinoStartListening;
+import org.ardulink.core.messages.api.FromDeviceMessagePinStateChanged;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -27,17 +27,22 @@ import org.ardulink.core.proto.api.ToArduinoStartListening;
  * [adsense]
  *
  */
-public class DefaultOutMessageStartListening implements ToArduinoStartListening {
+public class DefaultFromDeviceMessagePinStateChanged implements FromDeviceMessagePinStateChanged {
 
 	private final Pin pin;
+	private final Object value;
 
-	public DefaultOutMessageStartListening(Pin pin) {
+	public DefaultFromDeviceMessagePinStateChanged(Pin pin, Object value) {
 		this.pin = pin;
+		this.value = value;
 	}
 
-	@Override
 	public Pin getPin() {
-		return pin;
+		return this.pin;
+	}
+
+	public Object getValue() {
+		return this.value;
 	}
 
 }

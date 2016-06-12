@@ -18,7 +18,7 @@ package org.ardulink.camel.test.translate;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.ardulink.core.messages.impl.DefaultOutMessageCustom;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageCustom;
 import org.ardulink.util.Optional;
 
 /**
@@ -37,7 +37,7 @@ public class DummyToArdulinkMessageProcessor implements Processor {
 		Message out = getMessageTarget(exchange);
 		String body = in.getBody(String.class);
 		if ("send Custom Message".equals(body)) {
-			out.setBody(new DefaultOutMessageCustom("dummy"));
+			out.setBody(new DefaultToDeviceMessageCustom("dummy"));
 		} else {
 			out.setFault(true);
 		}

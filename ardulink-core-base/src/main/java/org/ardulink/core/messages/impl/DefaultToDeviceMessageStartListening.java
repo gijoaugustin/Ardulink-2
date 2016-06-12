@@ -12,14 +12,12 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
- */
+*/
 
 package org.ardulink.core.messages.impl;
 
-import java.util.Arrays;
-
-import org.ardulink.core.messages.api.OutMessageCustom;
-import org.ardulink.util.Joiner;
+import org.ardulink.core.Pin;
+import org.ardulink.core.messages.api.ToDeviceMessageStartListening;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -29,22 +27,17 @@ import org.ardulink.util.Joiner;
  * [adsense]
  *
  */
-public class DefaultOutMessageCustom implements OutMessageCustom {
+public class DefaultToDeviceMessageStartListening implements ToDeviceMessageStartListening {
 
-	private final String[] messages;
+	private final Pin pin;
 
-	public DefaultOutMessageCustom(String... messages) {
-		this.messages = messages.clone();
+	public DefaultToDeviceMessageStartListening(Pin pin) {
+		this.pin = pin;
 	}
 
 	@Override
-	public String[] getMessages() {
-		return messages.clone();
-	}
-
-	@Override
-	public String toString() {
-		return Joiner.on(" ").join(Arrays.asList(messages));
+	public Pin getPin() {
+		return pin;
 	}
 
 }

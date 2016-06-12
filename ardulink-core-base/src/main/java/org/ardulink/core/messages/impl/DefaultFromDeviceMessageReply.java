@@ -19,7 +19,7 @@ package org.ardulink.core.messages.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ardulink.core.messages.api.InMessageReply;
+import org.ardulink.core.messages.api.FromDeviceMessageReply;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -29,19 +29,19 @@ import org.ardulink.core.messages.api.InMessageReply;
  * [adsense]
  *
  */
-public class DefaultInMessageReply implements InMessageReply {
+public class DefaultFromDeviceMessageReply implements FromDeviceMessageReply {
 
 	private final boolean ok;
 	private final long id;
 	private final Map<String, Object> parameters;
 
-	public DefaultInMessageReply(final boolean ok, final long id) {
+	public DefaultFromDeviceMessageReply(final boolean ok, final long id) {
 		this.ok = ok;
 		this.id = id;
 		this.parameters = new HashMap<String, Object>();
 	}
 
-	public DefaultInMessageReply(final boolean ok, final long id, final Map<String, Object> parameters) {
+	public DefaultFromDeviceMessageReply(final boolean ok, final long id, final Map<String, Object> parameters) {
 		this.ok = ok;
 		this.id = id;
 		this.parameters = new HashMap<String, Object>(parameters);

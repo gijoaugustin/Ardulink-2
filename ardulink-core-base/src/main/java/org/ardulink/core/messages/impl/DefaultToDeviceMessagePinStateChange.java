@@ -16,8 +16,10 @@ limitations under the License.
 
 package org.ardulink.core.messages.impl;
 
+import org.ardulink.core.Pin;
 import org.ardulink.core.Pin.AnalogPin;
-import org.ardulink.core.proto.api.ToArduinoNoTone;
+import org.ardulink.core.Pin.DigitalPin;
+import org.ardulink.core.messages.api.ToDeviceMessagePinStateChange;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -27,17 +29,29 @@ import org.ardulink.core.proto.api.ToArduinoNoTone;
  * [adsense]
  *
  */
-public class DefaultOutMessageNoTone implements ToArduinoNoTone {
+public class DefaultToDeviceMessagePinStateChange implements ToDeviceMessagePinStateChange {
 
-	private final AnalogPin analogPin;
+	private final Pin pin;
+	private final Object value;
 
-	public DefaultOutMessageNoTone(AnalogPin analogPin) {
-		this.analogPin = analogPin;
+	public DefaultToDeviceMessagePinStateChange(DigitalPin pin, boolean value) {
+		this.pin = pin;
+		this.value = value;
+	}
+
+	public DefaultToDeviceMessagePinStateChange(AnalogPin pin, int value) {
+		this.pin = pin;
+		this.value = value;
 	}
 
 	@Override
-	public AnalogPin getAnalogPin() {
-		return analogPin;
+	public Pin getPin() {
+		return pin;
+	}
+
+	@Override
+	public Object getValue() {
+		return value;
 	}
 
 }

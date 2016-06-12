@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import java.io.IOException;
 
 import org.ardulink.core.Link;
-import org.ardulink.core.messages.impl.DefaultOutMessageCustom;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageCustom;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -46,7 +46,7 @@ public class LinkAdapterTest {
 		Link link = mock(Link.class);
 		LinkMessageAdapter linkMessageAdapter = new LinkMessageAdapter(link);
 		linkMessageAdapter
-				.sendMessage(new DefaultOutMessageCustom("one", "two"));
+				.sendMessage(new DefaultToDeviceMessageCustom("one", "two"));
 		verify(link).sendCustomMessage("one", "two");
 	}
 
@@ -60,8 +60,8 @@ public class LinkAdapterTest {
 		linkMessageAdapter.sendMessage(unknownOutMessage());
 	}
 
-	private OutMessage unknownOutMessage() {
-		return new OutMessage() {
+	private ToDeviceMessage unknownOutMessage() {
+		return new ToDeviceMessage() {
 		};
 	}
 

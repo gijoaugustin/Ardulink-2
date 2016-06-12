@@ -16,8 +16,8 @@ limitations under the License.
 
 package org.ardulink.core.messages.impl;
 
-import org.ardulink.core.Tone;
-import org.ardulink.core.proto.api.ToArduinoTone;
+import org.ardulink.core.Pin.AnalogPin;
+import org.ardulink.core.messages.api.ToDeviceMessageNoTone;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -27,17 +27,17 @@ import org.ardulink.core.proto.api.ToArduinoTone;
  * [adsense]
  *
  */
-public class DefaultOutMessageTone implements ToArduinoTone {
+public class DefaultToDeviceMessageNoTone implements ToDeviceMessageNoTone {
 
-	private final Tone tone;
+	private final AnalogPin analogPin;
 
-	public DefaultOutMessageTone(Tone tone) {
-		this.tone = tone;
+	public DefaultToDeviceMessageNoTone(AnalogPin analogPin) {
+		this.analogPin = analogPin;
 	}
 
 	@Override
-	public Tone getTone() {
-		return tone;
+	public AnalogPin getAnalogPin() {
+		return analogPin;
 	}
 
 }

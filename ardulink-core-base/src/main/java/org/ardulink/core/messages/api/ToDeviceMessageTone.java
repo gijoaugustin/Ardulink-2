@@ -16,7 +16,7 @@ limitations under the License.
 
 package org.ardulink.core.messages.api;
 
-import org.ardulink.core.Pin;
+import org.ardulink.core.Tone;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -26,8 +26,8 @@ import org.ardulink.core.Pin;
  * [adsense]
  *
  */
-public interface OutMessageStopListening extends OutMessage {
+public interface ToDeviceMessageTone extends ToDeviceMessage {
 
-	Pin getPin();
+	Tone getTone();
 
 }

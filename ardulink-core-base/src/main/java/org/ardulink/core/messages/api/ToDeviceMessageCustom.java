@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package org.ardulink.core.messages.events.api;
+package org.ardulink.core.messages.api;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -23,8 +23,8 @@ package org.ardulink.core.messages.events.api;
  * [adsense]
  *
  */
-public interface InMessageListener {
-	
-	void inMessageReceived(InMessageEvent e);
+public interface ToDeviceMessageCustom extends ToDeviceMessage {
+
+	String[] getMessages();
 
 }

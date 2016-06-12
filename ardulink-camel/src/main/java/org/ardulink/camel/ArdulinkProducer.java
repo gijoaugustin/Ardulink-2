@@ -7,7 +7,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
 import org.ardulink.core.messages.api.LinkMessageAdapter;
-import org.ardulink.core.messages.api.OutMessage;
+import org.ardulink.core.messages.api.ToDeviceMessage;
 
 public class ArdulinkProducer extends DefaultProducer {
 
@@ -25,8 +25,8 @@ public class ArdulinkProducer extends DefaultProducer {
 		Object body = message.getBody();
 		
 		checkNotNull(body, "Camel body message is null");
-		checkState(body instanceof OutMessage, "Expected an OutMessage as body obtained: %s", body.getClass().getCanonicalName());
+		checkState(body instanceof ToDeviceMessage, "Expected an OutMessage as body obtained: %s", body.getClass().getCanonicalName());
 
-		linkMessageAdapter.sendMessage((OutMessage)body);
+		linkMessageAdapter.sendMessage((ToDeviceMessage)body);
 	}
 }

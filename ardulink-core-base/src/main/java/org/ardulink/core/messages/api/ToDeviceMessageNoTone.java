@@ -16,7 +16,7 @@ limitations under the License.
 
 package org.ardulink.core.messages.api;
 
-import org.ardulink.core.Tone;
+import org.ardulink.core.Pin.AnalogPin;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -26,8 +26,8 @@ import org.ardulink.core.Tone;
  * [adsense]
  *
  */
-public interface OutMessageTone extends OutMessage {
+public interface ToDeviceMessageNoTone extends ToDeviceMessage {
 
-	Tone getTone();
+	AnalogPin getAnalogPin();
 
 }

@@ -13,7 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package org.ardulink.core.messages.api;
+package org.ardulink.core.messages.events.impl;
+
+import org.ardulink.core.messages.api.FromDeviceMessage;
+import org.ardulink.core.messages.events.api.FromDeviceMessageEvent;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -23,16 +26,17 @@ package org.ardulink.core.messages.api;
  * [adsense]
  *
  */
-public interface OutMessageKeyPress extends OutMessage {
+public class DefaultFromDeviceMessageEvent implements FromDeviceMessageEvent {
 
-	char getKeychar();
+	private FromDeviceMessage fromDeviceMessage;
+	
+	public DefaultFromDeviceMessageEvent(FromDeviceMessage fromDeviceMessage) {
+		this.fromDeviceMessage = fromDeviceMessage;
+	}
 
-	int getKeycode();
-
-	int getKeylocation();
-
-	int getKeymodifiers();
-
-	int getKeymodifiersex();
+	@Override
+	public FromDeviceMessage getFromDeviceMessage() {
+		return fromDeviceMessage;
+	}
 
 }

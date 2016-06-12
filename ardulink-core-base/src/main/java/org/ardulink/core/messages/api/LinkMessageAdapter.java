@@ -36,12 +36,12 @@ import org.ardulink.core.events.EventListener;
 import org.ardulink.core.events.PinValueChangedEvent;
 import org.ardulink.core.events.RplyEvent;
 import org.ardulink.core.events.RplyListener;
-import org.ardulink.core.messages.events.api.InMessageEvent;
-import org.ardulink.core.messages.events.api.InMessageListener;
-import org.ardulink.core.messages.events.impl.DefaultInMessageEvent;
-import org.ardulink.core.messages.impl.DefaultInMessageCustom;
-import org.ardulink.core.messages.impl.DefaultInMessagePinStateChanged;
-import org.ardulink.core.messages.impl.DefaultInMessageReply;
+import org.ardulink.core.messages.events.api.FromDeviceMessageEvent;
+import org.ardulink.core.messages.events.api.FromDeviceMessageListener;
+import org.ardulink.core.messages.events.impl.DefaultFromDeviceMessageEvent;
+import org.ardulink.core.messages.impl.DefaultFromDeviceMessageCustom;
+import org.ardulink.core.messages.impl.DefaultFromDeviceMessagePinStateChanged;
+import org.ardulink.core.messages.impl.DefaultFromDeviceMessageReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,34 +69,34 @@ public class LinkMessageAdapter {
 		link.addRplyListener(linkListener);
 	}
 
-	public LinkMessageAdapter addInMessageListener(InMessageListener listener)
+	public LinkMessageAdapter addInMessageListener(FromDeviceMessageListener listener)
 			throws IOException {
 		checkNotNull(listener, "listener must not be null");
 		linkListener.addInMessageListener(listener);
 		return this;
 	}
 
-	public LinkMessageAdapter removeInMessageListener(InMessageListener listener)
+	public LinkMessageAdapter removeInMessageListener(FromDeviceMessageListener listener)
 			throws IOException {
 		checkNotNull(listener, "listener must not be null");
 		linkListener.removeInMessageListener(listener);
 		return this;
 	}
 
-	public void sendMessage(OutMessage message) throws IOException {
+	public void sendMessage(ToDeviceMessage message) throws IOException {
 
 		checkNotNull(message, "OutMessage must not be null");
 
-		if (message instanceof OutMessageCustom) {
-			OutMessageCustom cMessage = (OutMessageCustom) message;
+		if (message instanceof ToDeviceMessageCustom) {
+			ToDeviceMessageCustom cMessage = (ToDeviceMessageCustom) message;
 			sendCustomMessage(cMessage.getMessages());
-		} else if (message instanceof OutMessageKeyPress) {
-			OutMessageKeyPress cMessage = (OutMessageKeyPress) message;
+		} else if (message instanceof ToDeviceMessageKeyPress) {
+			ToDeviceMessageKeyPress cMessage = (ToDeviceMessageKeyPress) message;
 			sendKeyPressEvent(cMessage.getKeychar(), cMessage.getKeycode(),
 					cMessage.getKeylocation(), cMessage.getKeymodifiers(),
 					cMessage.getKeymodifiersex());
-		} else if (message instanceof OutMessagePinEvent) {
-			OutMessagePinEvent cMessage = (OutMessagePinEvent) message;
+		} else if (message instanceof ToDeviceMessagePinStateChange) {
+			ToDeviceMessagePinStateChange cMessage = (ToDeviceMessagePinStateChange) message;
 			Pin pin = cMessage.getPin();
 			if (pin.is(ANALOG)) {
 				switchAnalogPin((Pin.AnalogPin) pin,
@@ -108,17 +108,17 @@ public class LinkMessageAdapter {
 				throw new IllegalStateException("Unknown pin type "
 						+ pin.getType());
 			}
-		} else if (message instanceof OutMessageStartListening) {
-			OutMessageStartListening cMessage = (OutMessageStartListening) message;
+		} else if (message instanceof ToDeviceMessageStartListening) {
+			ToDeviceMessageStartListening cMessage = (ToDeviceMessageStartListening) message;
 			startListening(cMessage.getPin());
-		} else if (message instanceof OutMessageStopListening) {
-			OutMessageStopListening cMessage = (OutMessageStopListening) message;
+		} else if (message instanceof ToDeviceMessageStopListening) {
+			ToDeviceMessageStopListening cMessage = (ToDeviceMessageStopListening) message;
 			stopListening(cMessage.getPin());
-		} else if (message instanceof OutMessageTone) {
-			OutMessageTone cMessage = (OutMessageTone) message;
+		} else if (message instanceof ToDeviceMessageTone) {
+			ToDeviceMessageTone cMessage = (ToDeviceMessageTone) message;
 			sendTone(cMessage.getTone());
-		} else if (message instanceof OutMessageNoTone) {
-			OutMessageNoTone cMessage = (OutMessageNoTone) message;
+		} else if (message instanceof ToDeviceMessageNoTone) {
+			ToDeviceMessageNoTone cMessage = (ToDeviceMessageNoTone) message;
 			sendNoTone(cMessage.getAnalogPin());
 		} else {
 			throw new IllegalStateException(String.format(
@@ -167,7 +167,7 @@ public class LinkMessageAdapter {
 	private static class LinkListener implements CustomListener, RplyListener,
 			EventListener {
 
-		private final List<InMessageListener> inMessageListeners = new CopyOnWriteArrayList<InMessageListener>();
+		private final List<FromDeviceMessageListener> inMessageListeners = new CopyOnWriteArrayList<FromDeviceMessageListener>();
 
 		@Override
 		public void stateChanged(AnalogPinValueChangedEvent event) {
@@ -180,44 +180,44 @@ public class LinkMessageAdapter {
 		}
 
 		private void stateChanged(PinValueChangedEvent event) {
-			InMessage inMessage = new DefaultInMessagePinStateChanged(
+			FromDeviceMessage inMessage = new DefaultFromDeviceMessagePinStateChanged(
 					event.getPin(), event.getValue());
-			InMessageEvent inMessageEvent = new DefaultInMessageEvent(inMessage);
+			FromDeviceMessageEvent inMessageEvent = new DefaultFromDeviceMessageEvent(inMessage);
 
 			fireInMessageReceived(inMessageEvent);
 		}
 
 		@Override
 		public void rplyReceived(RplyEvent event) {
-			InMessage inMessage = new DefaultInMessageReply(event.isOk(),
+			FromDeviceMessage inMessage = new DefaultFromDeviceMessageReply(event.isOk(),
 					event.getId());
-			InMessageEvent inMessageEvent = new DefaultInMessageEvent(inMessage);
+			FromDeviceMessageEvent inMessageEvent = new DefaultFromDeviceMessageEvent(inMessage);
 
 			fireInMessageReceived(inMessageEvent);
 		}
 
 		@Override
 		public void customEventReceived(CustomEvent event) {
-			InMessage inMessage = new DefaultInMessageCustom(event.getValue());
-			InMessageEvent inMessageEvent = new DefaultInMessageEvent(inMessage);
+			FromDeviceMessage inMessage = new DefaultFromDeviceMessageCustom(event.getValue());
+			FromDeviceMessageEvent inMessageEvent = new DefaultFromDeviceMessageEvent(inMessage);
 
 			fireInMessageReceived(inMessageEvent);
 		}
 
-		public void addInMessageListener(InMessageListener listener)
+		public void addInMessageListener(FromDeviceMessageListener listener)
 				throws IOException {
 			this.inMessageListeners.add(listener);
 		}
 
-		public void removeInMessageListener(InMessageListener listener)
+		public void removeInMessageListener(FromDeviceMessageListener listener)
 				throws IOException {
 			this.inMessageListeners.remove(listener);
 		}
 
-		public void fireInMessageReceived(InMessageEvent event) {
-			for (InMessageListener listener : this.inMessageListeners) {
+		public void fireInMessageReceived(FromDeviceMessageEvent event) {
+			for (FromDeviceMessageListener listener : this.inMessageListeners) {
 				try {
-					listener.inMessageReceived(event);
+					listener.fromDeviceMessageReceived(event);
 				} catch (Exception e) {
 					logger.error("InMessageListener {} failure", listener, e);
 				}

@@ -18,13 +18,13 @@ package org.ardulink.core.messages.api;
 /**
  * [ardulinktitle] [ardulinkversion]
  * 
- * This marker interface represents an incoming to Ardulink message.
- * Usually this message comes from an Arduino board (but also from an MQTT broker or
- * Camel route)
+ * project Ardulink http://www.ardulink.org/
  * 
  * [adsense]
  *
  */
-public interface InMessage extends Message {
+public interface FromDeviceMessageCustom extends FromDeviceMessage {
+	
+	Object getValue();
 
 }

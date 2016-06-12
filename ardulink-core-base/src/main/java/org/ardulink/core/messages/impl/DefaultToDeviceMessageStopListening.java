@@ -17,7 +17,7 @@ limitations under the License.
 package org.ardulink.core.messages.impl;
 
 import org.ardulink.core.Pin;
-import org.ardulink.core.messages.api.InMessagePinStateChanged;
+import org.ardulink.core.messages.api.ToDeviceMessageStopListening;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -27,22 +27,17 @@ import org.ardulink.core.messages.api.InMessagePinStateChanged;
  * [adsense]
  *
  */
-public class DefaultInMessagePinStateChanged implements InMessagePinStateChanged {
+public class DefaultToDeviceMessageStopListening implements ToDeviceMessageStopListening {
 
 	private final Pin pin;
-	private final Object value;
 
-	public DefaultInMessagePinStateChanged(Pin pin, Object value) {
+	public DefaultToDeviceMessageStopListening(Pin pin) {
 		this.pin = pin;
-		this.value = value;
 	}
 
+	@Override
 	public Pin getPin() {
-		return this.pin;
-	}
-
-	public Object getValue() {
-		return this.value;
+		return pin;
 	}
 
 }

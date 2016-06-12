@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package org.ardulink.core.messages.api;
+package org.ardulink.core.messages.impl;
 
-import java.util.Map;
+import org.ardulink.core.messages.api.FromDeviceMessageCustom;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -25,13 +25,17 @@ import java.util.Map;
  * [adsense]
  *
  */
-public interface InMessageReply extends InMessage {
+public class DefaultFromDeviceMessageCustom implements FromDeviceMessageCustom {
 
-	public boolean isOk();
+	private final Object value;
 
-	public long getId();
-	
-	public Map<String, Object> getParameters();
-	
-	public boolean hasParameters();
+	public DefaultFromDeviceMessageCustom(final Object value) {
+		this.value = value;
+	}
+
+	@Override
+	public Object getValue() {
+		return value;
+	}
+
 }

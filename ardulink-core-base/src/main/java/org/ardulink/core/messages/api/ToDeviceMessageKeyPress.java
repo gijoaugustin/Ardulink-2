@@ -15,8 +15,6 @@ limitations under the License.
  */
 package org.ardulink.core.messages.api;
 
-import org.ardulink.core.Pin;
-
 /**
  * [ardulinktitle] [ardulinkversion]
  * 
@@ -25,10 +23,16 @@ import org.ardulink.core.Pin;
  * [adsense]
  *
  */
-public interface InMessagePinStateChanged extends InMessage {
+public interface ToDeviceMessageKeyPress extends ToDeviceMessage {
 
-	public Pin getPin();
+	char getKeychar();
 
-	public Object getValue();
-	
+	int getKeycode();
+
+	int getKeylocation();
+
+	int getKeymodifiers();
+
+	int getKeymodifiersex();
+
 }

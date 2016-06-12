@@ -5,22 +5,22 @@ import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
-import org.ardulink.core.messages.events.api.InMessageEvent;
-import org.ardulink.core.messages.events.api.InMessageListener;
+import org.ardulink.core.messages.events.api.FromDeviceMessageEvent;
+import org.ardulink.core.messages.events.api.FromDeviceMessageListener;
 
-public class ArdulinkConsumer extends DefaultConsumer implements InMessageListener {
+public class ArdulinkConsumer extends DefaultConsumer implements FromDeviceMessageListener {
 
 	public ArdulinkConsumer(ArdulinkEndpoint endpoint, Processor processor) {
 		super(endpoint, processor);
 	}
 
 	@Override
-	public void inMessageReceived(InMessageEvent e) {
+	public void fromDeviceMessageReceived(FromDeviceMessageEvent e) {
 
         Exchange exchange = getEndpoint().createExchange(ExchangePattern.InOnly);
         Message message = exchange.getIn();
 
-        message.setBody(e.getInMessage());
+        message.setBody(e.getFromDeviceMessage());
 		try {
 			getProcessor().process(exchange);
 		} catch (Exception ex) {

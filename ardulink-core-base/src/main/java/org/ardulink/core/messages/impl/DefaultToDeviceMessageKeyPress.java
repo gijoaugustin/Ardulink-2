@@ -16,7 +16,7 @@ limitations under the License.
 
 package org.ardulink.core.messages.impl;
 
-import org.ardulink.core.proto.api.ToArduinoKeyPressEvent;
+import org.ardulink.core.messages.api.ToDeviceMessageKeyPress;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -26,7 +26,7 @@ import org.ardulink.core.proto.api.ToArduinoKeyPressEvent;
  * [adsense]
  *
  */
-public class DefaultOutMessageKeyPressEvent implements ToArduinoKeyPressEvent {
+public class DefaultToDeviceMessageKeyPress implements ToDeviceMessageKeyPress {
 
 	private final char keychar;
 	private final int keycode;
@@ -34,7 +34,7 @@ public class DefaultOutMessageKeyPressEvent implements ToArduinoKeyPressEvent {
 	private final int keymodifiers;
 	private final int keymodifiersex;
 
-	public DefaultOutMessageKeyPressEvent(char keychar, int keycode, int keylocation,
+	public DefaultToDeviceMessageKeyPress(char keychar, int keycode, int keylocation,
 			int keymodifiers, int keymodifiersex) {
 		this.keychar = keychar;
 		this.keycode = keycode;

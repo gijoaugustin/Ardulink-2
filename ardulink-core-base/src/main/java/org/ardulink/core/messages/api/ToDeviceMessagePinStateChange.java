@@ -26,7 +26,7 @@ import org.ardulink.core.Pin;
  * [adsense]
  *
  */
-public interface OutMessagePinEvent extends OutMessage {
+public interface ToDeviceMessagePinStateChange extends ToDeviceMessage {
 
 	Pin getPin();
 

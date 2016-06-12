@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package org.ardulink.core.messages.events.api;
+package org.ardulink.core.messages.api;
 
-import org.ardulink.core.messages.api.InMessage;
+import java.util.Map;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -25,8 +25,13 @@ import org.ardulink.core.messages.api.InMessage;
  * [adsense]
  *
  */
-public interface InMessageEvent {
-	
-	InMessage getInMessage();
+public interface FromDeviceMessageReply extends FromDeviceMessage {
 
+	public boolean isOk();
+
+	public long getId();
+	
+	public Map<String, Object> getParameters();
+	
+	public boolean hasParameters();
 }
