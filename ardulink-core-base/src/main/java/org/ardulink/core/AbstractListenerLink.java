@@ -16,16 +16,18 @@ limitations under the License.
 
 package org.ardulink.core;
 
+import static org.ardulink.core.proto.api.MessageIdHolders.addMessageId;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.ardulink.core.events.AnalogPinValueChangedEvent;
+import org.ardulink.core.events.CustomEvent;
+import org.ardulink.core.events.CustomListener;
 import org.ardulink.core.events.DigitalPinValueChangedEvent;
 import org.ardulink.core.events.EventListener;
 import org.ardulink.core.events.FilteredEventListenerAdapter;
-import org.ardulink.core.events.CustomEvent;
-import org.ardulink.core.events.CustomListener;
 import org.ardulink.core.events.RplyEvent;
 import org.ardulink.core.events.RplyListener;
 import org.slf4j.Logger;
@@ -51,6 +53,31 @@ public abstract class AbstractListenerLink implements Link {
 
 	private boolean closed;
 
+	private static long messageCounter;
+
+	/**
+	 * @return a valid unique id to use in messages between Ardulink and controlled devices
+	 */
+	public synchronized long nextId() {
+		return ++messageCounter;
+	}
+
+	/**
+	 * Generates a Proxy implementing MessageIdHolder of T if there are RplyListeners registered to this Link
+	 * @param delegateTo
+	 * @return the proxy
+	 */
+	public <T> T addMessageIdIfNeeded(T delegateTo) {
+		
+		T retvalue = delegateTo;
+		if(!rplyListeners.isEmpty()) {
+			retvalue = addMessageId(delegateTo, nextId());
+		}
+		
+		return retvalue;
+	}
+	
+	
 	public Link addListener(EventListener listener) throws IOException {
 		if (!closed && listener instanceof FilteredEventListenerAdapter) {
 			Pin pin = ((FilteredEventListenerAdapter) listener).getPin();
