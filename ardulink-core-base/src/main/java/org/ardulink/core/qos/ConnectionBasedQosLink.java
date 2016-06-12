@@ -34,22 +34,22 @@ import org.ardulink.core.Pin.DigitalPin;
 import org.ardulink.core.Tone;
 import org.ardulink.core.events.RplyEvent;
 import org.ardulink.core.events.RplyListener;
+import org.ardulink.core.messages.api.ToDeviceMessageCustom;
+import org.ardulink.core.messages.api.ToDeviceMessageKeyPress;
+import org.ardulink.core.messages.api.ToDeviceMessageNoTone;
+import org.ardulink.core.messages.api.ToDeviceMessagePinStateChange;
+import org.ardulink.core.messages.api.ToDeviceMessageStartListening;
+import org.ardulink.core.messages.api.ToDeviceMessageStopListening;
+import org.ardulink.core.messages.api.ToDeviceMessageTone;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageCustom;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageKeyPress;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageNoTone;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessagePinStateChange;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageStartListening;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageStopListening;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageTone;
 import org.ardulink.core.proto.api.MessageIdHolder;
 import org.ardulink.core.proto.api.Protocol;
-import org.ardulink.core.proto.api.ToArduinoCustomMessage;
-import org.ardulink.core.proto.api.ToArduinoKeyPressEvent;
-import org.ardulink.core.proto.api.ToArduinoNoTone;
-import org.ardulink.core.proto.api.ToArduinoPinEvent;
-import org.ardulink.core.proto.api.ToArduinoStartListening;
-import org.ardulink.core.proto.api.ToArduinoStopListening;
-import org.ardulink.core.proto.api.ToArduinoTone;
-import org.ardulink.core.proto.impl.DefaultToArduinoCustomMessage;
-import org.ardulink.core.proto.impl.DefaultToArduinoKeyPressEvent;
-import org.ardulink.core.proto.impl.DefaultToArduinoNoTone;
-import org.ardulink.core.proto.impl.DefaultToArduinoPinEvent;
-import org.ardulink.core.proto.impl.DefaultToArduinoStartListening;
-import org.ardulink.core.proto.impl.DefaultToArduinoStopListening;
-import org.ardulink.core.proto.impl.DefaultToArduinoTone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,20 +105,20 @@ public class ConnectionBasedQosLink extends AbstractConnectionBasedLink {
 		logger.info("Starting listening on pin {}", pin);
 		synchronized (getConnection()) {
 			
-			ToArduinoStartListening message = addMessageIdIfNeeded(new DefaultToArduinoStartListening(pin));
+			ToDeviceMessageStartListening message = addMessageIdIfNeeded(new DefaultToDeviceMessageStartListening(pin));
 			
 			long messageId = ((MessageIdHolder)message).getId();
-			sendAndWait(getProtocol().toArduino(message), messageId);
+			sendAndWait(getProtocol().toDevice(message), messageId);
 		}
 	}
 
 	@Override
 	public void stopListening(Pin pin) throws IOException {
 		synchronized (getConnection()) {
-			ToArduinoStopListening message = addMessageIdIfNeeded(new DefaultToArduinoStopListening(pin));
+			ToDeviceMessageStopListening message = addMessageIdIfNeeded(new DefaultToDeviceMessageStopListening(pin));
 			
 			long messageId = ((MessageIdHolder)message).getId();
-			sendAndWait(getProtocol().toArduino(message), messageId);
+			sendAndWait(getProtocol().toDevice(message), messageId);
 		}
 		logger.info("Stopped listening on pin {}", pin);
 	}
@@ -127,10 +127,10 @@ public class ConnectionBasedQosLink extends AbstractConnectionBasedLink {
 	public void switchAnalogPin(AnalogPin analogPin, int value)
 			throws IOException {
 		synchronized (getConnection()) {
-			ToArduinoPinEvent message = addMessageIdIfNeeded(new DefaultToArduinoPinEvent(analogPin, value));
+			ToDeviceMessagePinStateChange message = addMessageIdIfNeeded(new DefaultToDeviceMessagePinStateChange(analogPin, value));
 			
 			long messageId = ((MessageIdHolder)message).getId();
-			sendAndWait(getProtocol().toArduino(message), messageId);
+			sendAndWait(getProtocol().toDevice(message), messageId);
 		}
 	}
 
@@ -138,10 +138,10 @@ public class ConnectionBasedQosLink extends AbstractConnectionBasedLink {
 	public void switchDigitalPin(DigitalPin digitalPin, boolean value)
 			throws IOException {
 		synchronized (getConnection()) {
-			ToArduinoPinEvent message = addMessageIdIfNeeded(new DefaultToArduinoPinEvent(digitalPin, value));
+			ToDeviceMessagePinStateChange message = addMessageIdIfNeeded(new DefaultToDeviceMessagePinStateChange(digitalPin, value));
 			
 			long messageId = ((MessageIdHolder)message).getId();
-			sendAndWait(getProtocol().toArduino(message), messageId);
+			sendAndWait(getProtocol().toDevice(message), messageId);
 		}
 	}
 
@@ -149,41 +149,41 @@ public class ConnectionBasedQosLink extends AbstractConnectionBasedLink {
 	public void sendKeyPressEvent(char keychar, int keycode, int keylocation,
 			int keymodifiers, int keymodifiersex) throws IOException {
 		synchronized (getConnection()) {
-			ToArduinoKeyPressEvent message = addMessageIdIfNeeded(new DefaultToArduinoKeyPressEvent(keychar, keycode, keylocation,
+			ToDeviceMessageKeyPress message = addMessageIdIfNeeded(new DefaultToDeviceMessageKeyPress(keychar, keycode, keylocation,
 					keymodifiers, keymodifiersex));
 			
 			long messageId = ((MessageIdHolder)message).getId();
-			sendAndWait(getProtocol().toArduino(message), messageId);
+			sendAndWait(getProtocol().toDevice(message), messageId);
 		}
 	}
 
 	@Override
 	public void sendTone(Tone tone) throws IOException {
 		synchronized (getConnection()) {
-			ToArduinoTone message = addMessageIdIfNeeded(new DefaultToArduinoTone(tone));
+			ToDeviceMessageTone message = addMessageIdIfNeeded(new DefaultToDeviceMessageTone(tone));
 			
 			long messageId = ((MessageIdHolder)message).getId();
-			sendAndWait(getProtocol().toArduino(message), messageId);
+			sendAndWait(getProtocol().toDevice(message), messageId);
 		}
 	}
 
 	@Override
 	public void sendNoTone(AnalogPin analogPin) throws IOException {
 		synchronized (getConnection()) {
-			ToArduinoNoTone message = addMessageIdIfNeeded(new DefaultToArduinoNoTone(analogPin));
+			ToDeviceMessageNoTone message = addMessageIdIfNeeded(new DefaultToDeviceMessageNoTone(analogPin));
 			
 			long messageId = ((MessageIdHolder)message).getId();
-			sendAndWait(getProtocol().toArduino(message), messageId);
+			sendAndWait(getProtocol().toDevice(message), messageId);
 		}
 	}
 
 	@Override
 	public void sendCustomMessage(String... messages) throws IOException {
 		synchronized (getConnection()) {
-			ToArduinoCustomMessage message = addMessageIdIfNeeded(new DefaultToArduinoCustomMessage(messages));
+			ToDeviceMessageCustom message = addMessageIdIfNeeded(new DefaultToDeviceMessageCustom(messages));
 			
 			long messageId = ((MessageIdHolder)message).getId();
-			sendAndWait(getProtocol().toArduino(message), messageId);
+			sendAndWait(getProtocol().toDevice(message), messageId);
 		}
 	}
 

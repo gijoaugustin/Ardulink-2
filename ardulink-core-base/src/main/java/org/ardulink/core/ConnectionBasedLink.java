@@ -20,16 +20,16 @@ import java.io.IOException;
 
 import org.ardulink.core.Pin.AnalogPin;
 import org.ardulink.core.Pin.DigitalPin;
+import org.ardulink.core.messages.api.ToDeviceMessageStartListening;
+import org.ardulink.core.messages.api.ToDeviceMessageStopListening;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageCustom;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageKeyPress;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageNoTone;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessagePinStateChange;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageStartListening;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageStopListening;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageTone;
 import org.ardulink.core.proto.api.Protocol;
-import org.ardulink.core.proto.api.ToArduinoStartListening;
-import org.ardulink.core.proto.api.ToArduinoStopListening;
-import org.ardulink.core.proto.impl.DefaultToArduinoCustomMessage;
-import org.ardulink.core.proto.impl.DefaultToArduinoKeyPressEvent;
-import org.ardulink.core.proto.impl.DefaultToArduinoNoTone;
-import org.ardulink.core.proto.impl.DefaultToArduinoPinEvent;
-import org.ardulink.core.proto.impl.DefaultToArduinoStartListening;
-import org.ardulink.core.proto.impl.DefaultToArduinoStopListening;
-import org.ardulink.core.proto.impl.DefaultToArduinoTone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +53,16 @@ public class ConnectionBasedLink extends AbstractConnectionBasedLink {
 	@Override
 	public void startListening(Pin pin) throws IOException {
 		logger.info("Starting listening on pin {}", pin);
-		ToArduinoStartListening startListeningEvent = addMessageIdIfNeeded(new DefaultToArduinoStartListening(
+		ToDeviceMessageStartListening startListening = addMessageIdIfNeeded(new DefaultToDeviceMessageStartListening(
 				pin));
-		send(getProtocol().toArduino(startListeningEvent));
+		send(getProtocol().toDevice(startListening));
 	}
 
 	@Override
 	public void stopListening(Pin pin) throws IOException {
-		ToArduinoStopListening stopListening = addMessageIdIfNeeded(new DefaultToArduinoStopListening(
+		ToDeviceMessageStopListening stopListening = addMessageIdIfNeeded(new DefaultToDeviceMessageStopListening(
 				pin));
-		send(getProtocol().toArduino(stopListening));
+		send(getProtocol().toDevice(stopListening));
 		logger.info("Stopped listening on pin {}", pin);
 	}
 
@@ -81,33 +81,33 @@ public class ConnectionBasedLink extends AbstractConnectionBasedLink {
 	@Override
 	public void sendKeyPressEvent(char keychar, int keycode, int keylocation,
 			int keymodifiers, int keymodifiersex) throws IOException {
-		send(getProtocol().toArduino(addMessageIdIfNeeded(
-				new DefaultToArduinoKeyPressEvent(keychar, keycode,
+		send(getProtocol().toDevice(addMessageIdIfNeeded(
+				new DefaultToDeviceMessageKeyPress(keychar, keycode,
 						keylocation, keymodifiers, keymodifiersex))));
 	}
 
 	@Override
 	public void sendTone(Tone tone) throws IOException {
-		send(getProtocol().toArduino(addMessageIdIfNeeded(new DefaultToArduinoTone(tone))));
+		send(getProtocol().toDevice(addMessageIdIfNeeded(new DefaultToDeviceMessageTone(tone))));
 	}
 
 	@Override
 	public void sendNoTone(AnalogPin analogPin) throws IOException {
-		send(getProtocol().toArduino(addMessageIdIfNeeded(new DefaultToArduinoNoTone(analogPin))));
+		send(getProtocol().toDevice(addMessageIdIfNeeded(new DefaultToDeviceMessageNoTone(analogPin))));
 	}
 
 	@Override
 	public void sendCustomMessage(String... messages) throws IOException {
-		send(getProtocol().toArduino(
-				addMessageIdIfNeeded(new DefaultToArduinoCustomMessage(messages))));
+		send(getProtocol().toDevice(
+				addMessageIdIfNeeded(new DefaultToDeviceMessageCustom(messages))));
 	}
 
 	private void send(AnalogPin pin, int value) throws IOException {
-		send(getProtocol().toArduino(addMessageIdIfNeeded(new DefaultToArduinoPinEvent(pin, value))));
+		send(getProtocol().toDevice(addMessageIdIfNeeded(new DefaultToDeviceMessagePinStateChange(pin, value))));
 	}
 
 	private void send(DigitalPin pin, boolean value) throws IOException {
-		send(getProtocol().toArduino(addMessageIdIfNeeded(new DefaultToArduinoPinEvent(pin, value))));
+		send(getProtocol().toDevice(addMessageIdIfNeeded(new DefaultToDeviceMessagePinStateChange(pin, value))));
 	}
 
 	private void send(byte[] bytes) throws IOException {

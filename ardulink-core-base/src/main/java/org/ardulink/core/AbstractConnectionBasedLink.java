@@ -34,17 +34,17 @@ import org.ardulink.core.Pin.AnalogPin;
 import org.ardulink.core.Pin.DigitalPin;
 import org.ardulink.core.events.AnalogPinValueChangedEvent;
 import org.ardulink.core.events.DefaultAnalogPinValueChangedEvent;
-import org.ardulink.core.events.DefaultDigitalPinValueChangedEvent;
 import org.ardulink.core.events.DefaultCustomEvent;
+import org.ardulink.core.events.DefaultDigitalPinValueChangedEvent;
 import org.ardulink.core.events.DefaultRplyEvent;
 import org.ardulink.core.events.DigitalPinValueChangedEvent;
+import org.ardulink.core.messages.api.FromDeviceMessage;
+import org.ardulink.core.messages.api.FromDeviceMessageCustom;
+import org.ardulink.core.messages.api.FromDeviceMessagePinStateChanged;
+import org.ardulink.core.messages.api.FromDeviceMessageReady;
+import org.ardulink.core.messages.api.FromDeviceMessageReply;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageNoTone;
 import org.ardulink.core.proto.api.Protocol;
-import org.ardulink.core.proto.api.Protocol.FromArduino;
-import org.ardulink.core.proto.impl.DefaultToArduinoNoTone;
-import org.ardulink.core.proto.impl.FromArduinoPinStateChanged;
-import org.ardulink.core.proto.impl.FromArduinoCustom;
-import org.ardulink.core.proto.impl.FromArduinoReady;
-import org.ardulink.core.proto.impl.FromArduinoReply;
 import org.ardulink.util.StopWatch;
 
 /**
@@ -81,26 +81,26 @@ public abstract class AbstractConnectionBasedLink extends AbstractListenerLink {
 	}
 
 	protected void received(byte[] bytes) {
-		received(this.protocol.fromArduino(bytes));
+		received(this.protocol.fromDevice(bytes));
 	}
 
-	protected void received(FromArduino fromArduino) {
-		if (fromArduino instanceof FromArduinoPinStateChanged) {
-			handlePinChanged((FromArduinoPinStateChanged) fromArduino);
-		} else if (fromArduino instanceof FromArduinoReply) {
-			FromArduinoReply reply = (FromArduinoReply) fromArduino;
+	protected void received(FromDeviceMessage fromDevice) {
+		if (fromDevice instanceof FromDeviceMessagePinStateChanged) {
+			handlePinChanged((FromDeviceMessagePinStateChanged) fromDevice);
+		} else if (fromDevice instanceof FromDeviceMessageReply) {
+			FromDeviceMessageReply reply = (FromDeviceMessageReply) fromDevice;
 			fireReplyReceived(new DefaultRplyEvent(reply.isOk(), reply.getId()));
-		} else if (fromArduino instanceof FromArduinoCustom) {
-			FromArduinoCustom custom_event = (FromArduinoCustom) fromArduino;
+		} else if (fromDevice instanceof FromDeviceMessageCustom) {
+			FromDeviceMessageCustom custom_event = (FromDeviceMessageCustom) fromDevice;
 			fireCustomReceived(new DefaultCustomEvent(custom_event.getValue()));
-		} else if (fromArduino instanceof FromArduinoReady) {
+		} else if (fromDevice instanceof FromDeviceMessageReady) {
 			this.readyMsgReceived = true;
 		} else {
-			throw new IllegalStateException("Cannot handle " + fromArduino);
+			throw new IllegalStateException("Cannot handle " + fromDevice);
 		}
 	}
 
-	protected void handlePinChanged(FromArduinoPinStateChanged pinChanged) {
+	protected void handlePinChanged(FromDeviceMessagePinStateChanged pinChanged) {
 		Pin pin = pinChanged.getPin();
 		Object value = pinChanged.getValue();
 		if (pin.is(ANALOG) && value instanceof Integer) {
@@ -204,8 +204,8 @@ public abstract class AbstractConnectionBasedLink extends AbstractListenerLink {
 		// (yet). So let's write something that the arduino tries to respond to.
 		try {
 			long messageId = 0;
-			connection.write(getProtocol().toArduino(
-					addMessageId(new DefaultToArduinoNoTone(analogPin(0)),
+			connection.write(getProtocol().toDevice(
+					addMessageId(new DefaultToDeviceMessageNoTone(analogPin(0)),
 							messageId)));
 		} catch (IOException e) {
 			// ignore

@@ -17,16 +17,16 @@ limitations under the License.
 package org.ardulink.core.proto.api;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.ardulink.core.proto.api.Protocol.FromArduino;
+import org.ardulink.core.messages.api.FromDeviceMessage;
+import org.ardulink.core.messages.api.FromDeviceMessageCustom;
 import org.ardulink.core.proto.impl.ArdulinkProtocol2;
-import org.ardulink.core.proto.impl.FromArduinoCustom;
 import org.junit.Test;
 
 /**
@@ -52,10 +52,10 @@ public class ProtocolsTest {
 		
 		String fromArduinoCustomEventMessage = "alp://cevnt/foo=w/some=42";
 		
-		FromArduino fromArduino = protocol.fromArduino(fromArduinoCustomEventMessage.getBytes());
+		FromDeviceMessage fromDevice = protocol.fromDevice(fromArduinoCustomEventMessage.getBytes());
 		
-		assertThat(fromArduino, instanceOf(FromArduinoCustom.class));
-		assertEquals(((FromArduinoCustom)fromArduino).getValue().toString(), "foo=w/some=42");
+		assertThat(fromDevice, instanceOf(FromDeviceMessageCustom.class));
+		assertEquals(((FromDeviceMessageCustom)fromDevice).getValue().toString(), "foo=w/some=42");
 		
 	}
 
