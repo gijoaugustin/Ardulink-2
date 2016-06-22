@@ -21,12 +21,15 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 
 import org.ardulink.core.messages.api.FromDeviceMessage;
 import org.ardulink.core.messages.api.FromDeviceMessageCustom;
+import org.ardulink.core.messages.api.FromDeviceMessageReply;
 import org.ardulink.core.proto.impl.ArdulinkProtocol2;
+import org.ardulink.util.URIs;
 import org.junit.Test;
 
 /**
@@ -50,13 +53,29 @@ public class ProtocolsTest {
 	public void ardulinkProtocol2ReceiveCustomEvent() {
 		Protocol protocol = ArdulinkProtocol2.instance();
 		
-		String fromArduinoCustomEventMessage = "alp://cevnt/foo=w/some=42";
+		String message = "alp://cevnt/foo=w/some=42";
 		
-		FromDeviceMessage fromDevice = protocol.fromDevice(fromArduinoCustomEventMessage.getBytes());
+		FromDeviceMessage fromDevice = protocol.fromDevice(message.getBytes());
 		
 		assertThat(fromDevice, instanceOf(FromDeviceMessageCustom.class));
 		assertEquals(((FromDeviceMessageCustom)fromDevice).getValue().toString(), "foo=w/some=42");
 		
 	}
 
+	@Test
+	public void ardulinkProtocol2ReceiveRply() {
+		Protocol protocol = ArdulinkProtocol2.instance();
+		
+		String message = "alp://rply/ok?id=1&UniqueID=456-2342-2342&ciao=boo";
+				
+		FromDeviceMessage fromDevice = protocol.fromDevice(message.getBytes());
+		
+		assertThat(fromDevice, instanceOf(FromDeviceMessageReply.class));
+		assertEquals(((FromDeviceMessageReply)fromDevice).isOk(), true);
+		assertEquals(((FromDeviceMessageReply)fromDevice).getId(), 1);
+		assertEquals(((FromDeviceMessageReply)fromDevice).getParameters().get("UniqueID"), "456-2342-2342");
+		assertEquals(((FromDeviceMessageReply)fromDevice).getParameters().get("ciao"), "boo");
+	}
+
+	
 }

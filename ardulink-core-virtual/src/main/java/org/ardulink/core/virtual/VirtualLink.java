@@ -16,7 +16,11 @@ import org.ardulink.core.Pin.Type;
 import org.ardulink.core.Tone;
 import org.ardulink.core.events.DefaultAnalogPinValueChangedEvent;
 import org.ardulink.core.events.DefaultDigitalPinValueChangedEvent;
+import org.ardulink.core.events.DefaultRplyEvent;
 import org.ardulink.core.linkmanager.LinkConfig;
+import org.ardulink.core.messages.api.ToDeviceMessageCustom;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageCustom;
+import org.ardulink.core.proto.api.MessageIdHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +50,19 @@ public class VirtualLink extends AbstractListenerLink {
 								(DigitalPin) pin, getRandomDigital()));
 					}
 				}
+				
+				// requested device ID see DeviceID class
+				if(requestUniqueID != null) {
+					if(uniqueID == null) {
+						uniqueID = uniqueIDSuggested;
+					}
+					Map<String, Object> parameters = new HashMap<String, Object>();
+					parameters.put("UniqueID", uniqueID);
+					fireReplyReceived(new DefaultRplyEvent(true, requestUniqueID, parameters));
+					requestUniqueID = null;
+					uniqueIDSuggested = null;
+				}
+				
 				try {
 					TimeUnit.MILLISECONDS.sleep(250);
 				} catch (InterruptedException e) {
@@ -57,6 +74,10 @@ public class VirtualLink extends AbstractListenerLink {
 	};
 
 	private final Map<Pin, Object> listeningPins = new HashMap<Pin, Object>();
+
+	private Long requestUniqueID = null;
+	private String uniqueIDSuggested = null;
+	private String uniqueID = null;
 
 	public VirtualLink(LinkConfig config) {
 		super();
@@ -129,6 +150,16 @@ public class VirtualLink extends AbstractListenerLink {
 	@Override
 	public void sendCustomMessage(String... messages) throws IOException {
 		logger.info("custom message {}", Arrays.asList(messages));
+		
+		// If it's a request for get device Unique ID then (see DeviceID class)
+		if(messages != null && messages.length == 2 && messages[0].equals("getUniqueID")) {
+			logger.info("custom message unique ID request");
+			ToDeviceMessageCustom custom = addMessageIdIfNeeded(new DefaultToDeviceMessageCustom(messages));
+			if(custom instanceof MessageIdHolder) {
+				requestUniqueID = ((MessageIdHolder)custom).getId();
+				uniqueIDSuggested = messages[1];
+			}
+		}
 	}
 
 }

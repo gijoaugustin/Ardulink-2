@@ -27,8 +27,8 @@ import org.ardulink.core.Pin;
  */
 public interface FromDeviceMessagePinStateChanged extends FromDeviceMessage {
 
-	public Pin getPin();
+	Pin getPin();
 
-	public Object getValue();
+	Object getValue();
 	
 }

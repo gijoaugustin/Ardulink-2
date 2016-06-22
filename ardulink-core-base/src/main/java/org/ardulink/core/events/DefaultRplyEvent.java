@@ -16,6 +16,8 @@ limitations under the License.
 
 package org.ardulink.core.events;
 
+import java.util.Map;
+
 /**
  * [ardulinktitle] [ardulinkversion]
  * 
@@ -28,10 +30,12 @@ public class DefaultRplyEvent implements RplyEvent {
 
 	private boolean ok;
 	private long id;
-
-	public DefaultRplyEvent(boolean ok, long id) {
+	private Map<String, Object> parameters;
+	
+	public DefaultRplyEvent(boolean ok, long id, Map<String, Object> parameters) {
 		this.ok = ok;
 		this.id = id;
+		this.parameters = parameters;
 	}
 
 	@Override
@@ -44,4 +48,13 @@ public class DefaultRplyEvent implements RplyEvent {
 		return id;
 	}
 
+	@Override
+	public Map<String, Object> getParameters() {
+		return parameters;
+	}
+
+	@Override
+	public boolean hasParameters() {
+		return parameters != null && !parameters.isEmpty();
+	}
 }

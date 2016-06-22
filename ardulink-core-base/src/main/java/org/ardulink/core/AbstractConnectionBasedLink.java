@@ -89,7 +89,7 @@ public abstract class AbstractConnectionBasedLink extends AbstractListenerLink {
 			handlePinChanged((FromDeviceMessagePinStateChanged) fromDevice);
 		} else if (fromDevice instanceof FromDeviceMessageReply) {
 			FromDeviceMessageReply reply = (FromDeviceMessageReply) fromDevice;
-			fireReplyReceived(new DefaultRplyEvent(reply.isOk(), reply.getId()));
+			fireReplyReceived(new DefaultRplyEvent(reply.isOk(), reply.getId(), reply.getParameters()));
 		} else if (fromDevice instanceof FromDeviceMessageCustom) {
 			FromDeviceMessageCustom custom_event = (FromDeviceMessageCustom) fromDevice;
 			fireCustomReceived(new DefaultCustomEvent(custom_event.getValue()));

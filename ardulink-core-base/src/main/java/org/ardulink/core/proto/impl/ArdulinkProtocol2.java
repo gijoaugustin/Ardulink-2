@@ -42,6 +42,9 @@ import static org.ardulink.util.Integers.tryParse;
 import static org.ardulink.util.Preconditions.checkNotNull;
 import static org.ardulink.util.Preconditions.checkState;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,6 +65,7 @@ import org.ardulink.core.proto.api.MessageIdHolder;
 import org.ardulink.core.proto.api.Protocol;
 import org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey;
 import org.ardulink.util.Longs;
+import org.ardulink.util.Throwables;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -73,8 +77,8 @@ import org.ardulink.util.Longs;
  */
 public class ArdulinkProtocol2 implements Protocol {
 
-	private static final Pattern pattern = Pattern
-			.compile("alp:\\/\\/([a-z]+)\\/([^\\?]*)(?:\\?id=(\\d+))?");
+//	private static final Pattern pattern = Pattern
+//			.compile("alp:\\/\\/([a-z]+)\\/([^\\?]*)(?:\\?id=(\\d+)((\\&[a-zA-Z]+\\=[^\\&]+))*)");
 
 	private final String name = "ardulink2";
 	private final byte[] separator = "\n".getBytes();
@@ -177,30 +181,49 @@ public class ArdulinkProtocol2 implements Protocol {
 	@Override
 	public FromDeviceMessage fromDevice(byte[] bytes) {
 		String in = new String(bytes);
-		Matcher matcher = pattern.matcher(in);
+//		Matcher matcher = pattern.matcher(in);
+		
+		URI uri;
+		try {
+			uri = new URI(in);
+		} catch (Exception e) {
+			throw Throwables.propagate(e);
+		}
 
-		checkState(matcher.matches(), "No match %s", in);
-		checkState(matcher.groupCount() >= 2, "GroupCount %s",
-				matcher.groupCount());
-		String command = matcher.group(1);
+		String alpPrefix = uri.getScheme();
+		String command = uri.getHost();
+		String specs = removeFirstSlash(uri.getPath());
+		String query = uri.getQuery();
+		
+		checkNotNull(alpPrefix, "Message hasn't a prefix");
+		checkNotNull(command,   "Message hasn't a command");
+		checkNotNull(specs,   "Message hasn't specs");
+
+		checkState(alpPrefix.equals("alp"), "Message prefix isn't equal to alp. It is: %s", alpPrefix);
+		
 		ALPProtocolKey key = ALPProtocolKey.fromString(command).getOrThrow(
 				"command %s not known", command);
 
 		if (key == READY) {
 			return new DefaultFromDeviceMessageReady();
 		} else if (key == RPLY) {
-			checkState(matcher.groupCount() >= 3, "GroupCount %s",
-					matcher.groupCount());
-			String id = matcher.group(3);
+			
+			Map<String, Object> params = getParamsFromQuery(query);
+
+			checkNotNull(params.get("id"), "Reply message needs for mandatory param: id");
+			String id = (String)params.get("id");
+			
 			return new DefaultFromDeviceMessageReply(
-					matcher.group(2).equalsIgnoreCase("ok"), checkNotNull(
+					specs.equalsIgnoreCase("ok"), checkNotNull(
 							Longs.tryParse(id), "%s not a long value", id)
-							.longValue());
+							.longValue()
+							, params);
+			
 		} else if (key == ALPProtocolKey.CUSTOM_EVENT) {
-			return new DefaultFromDeviceMessageCustom(matcher.group(2));
+			return new DefaultFromDeviceMessageCustom(specs);
 		}
 
-		String pinAndState = matcher.group(2);
+		String pinAndState = specs;
 		String[] split = pinAndState.split("\\/");
 		checkState(split.length == 2, "Error splitting %s, cannot process %s",
 				pinAndState, in);
@@ -216,6 +239,24 @@ public class ArdulinkProtocol2 implements Protocol {
 					toBoolean(value));
 		}
 		throw new IllegalStateException(key + " " + in);
+	}
+
+	private Map<String, Object> getParamsFromQuery(String query) {
+		checkNotNull(query, "Params can't be null");
+		Map<String, Object> retvalue = new HashMap<String, Object>();
+		String[] p = query.split("&");
+		for (String param : p) {
+			int index = param.indexOf("=");
+			retvalue.put(param.substring(0, index), param.substring(index+1));
+		}
+		return retvalue;
+	}
+
+	private String removeFirstSlash(String path) {
+		if(path != null && path.startsWith("/")) {
+			return path.substring(1);
+		}
+		return path;
 	}
 
 	private IllegalStateException illegalPinType(Pin pin) {

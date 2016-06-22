@@ -54,11 +54,13 @@ public abstract class AbstractListenerLink implements Link {
 	private boolean closed;
 
 	private static long messageCounter;
+	
+	private ThreadLocal<Long> localIdForRequest = new ThreadLocal<Long>();
 
 	/**
 	 * @return a valid unique id to use in messages between Ardulink and controlled devices
 	 */
-	public synchronized long nextId() {
+	private synchronized long nextId() {
 		return ++messageCounter;
 	}
 
@@ -71,12 +73,32 @@ public abstract class AbstractListenerLink implements Link {
 		
 		T retvalue = delegateTo;
 		if(!rplyListeners.isEmpty()) {
-			retvalue = addMessageId(delegateTo, nextId());
+			/*
+			 * Get the ID from ThreadLocal variable and clear the variable
+			 */
+			Long id = localIdForRequest.get();
+			localIdForRequest.set(null);
+			/*
+			 * If value was null I just take another ID since no one asked for a Local ID see nextLocalId
+			 */
+			if(id == null) {
+				id = nextId();
+			}
+			retvalue = addMessageId(delegateTo, id);
 		}
 		
 		return retvalue;
 	}
 	
+	/**
+	 * It inits and returns an ID that will be used from the next addMessageIdIfNeeded call.
+	 * @return
+	 */
+	public long nextLocalId() {
+		Long id = Long.valueOf(nextId());
+		localIdForRequest.set(id);
+		return id;
+	}
 	
 	public Link addListener(EventListener listener) throws IOException {
 		if (!closed && listener instanceof FilteredEventListenerAdapter) {

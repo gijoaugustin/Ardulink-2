@@ -27,11 +27,11 @@ import java.util.Map;
  */
 public interface FromDeviceMessageReply extends FromDeviceMessage {
 
-	public boolean isOk();
+	boolean isOk();
 
-	public long getId();
+	long getId();
 	
-	public Map<String, Object> getParameters();
+	Map<String, Object> getParameters();
 	
-	public boolean hasParameters();
+	boolean hasParameters();
 }
