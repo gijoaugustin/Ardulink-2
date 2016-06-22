@@ -50,7 +50,7 @@ public class DeviceIDTest {
 
 		@Override
 		public void sendCustomMessage(String... messages) throws IOException {
-			if (messages.length == 2 && messages[0].equals("getUniqueID")) {
+			if (messages.length == 2 && "getUniqueID".equals(messages[0])) {
 				logger.info("custom message unique ID request");
 				ToDeviceMessageCustom custom = addMessageIdIfNeeded(new DefaultToDeviceMessageCustom(
 						messages));

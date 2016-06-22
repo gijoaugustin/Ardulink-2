@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
+ */
 
 package org.ardulink.core.proto.impl;
 
@@ -45,8 +45,6 @@ import static org.ardulink.util.Preconditions.checkState;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.ardulink.core.Pin;
 import org.ardulink.core.messages.api.FromDeviceMessage;
@@ -65,7 +63,7 @@ import org.ardulink.core.proto.api.MessageIdHolder;
 import org.ardulink.core.proto.api.Protocol;
 import org.ardulink.core.proto.impl.ALProtoBuilder.ALPProtocolKey;
 import org.ardulink.util.Longs;
-import org.ardulink.util.Throwables;
+import org.ardulink.util.URIs;
 
 /**
  * [ardulinktitle] [ardulinkversion]
@@ -77,8 +75,8 @@ import org.ardulink.util.Throwables;
  */
 public class ArdulinkProtocol2 implements Protocol {
 
-//	private static final Pattern pattern = Pattern
-//			.compile("alp:\\/\\/([a-z]+)\\/([^\\?]*)(?:\\?id=(\\d+)((\\&[a-zA-Z]+\\=[^\\&]+))*)");
+	// private static final Pattern pattern = Pattern
+	// .compile("alp:\\/\\/([a-z]+)\\/([^\\?]*)(?:\\?id=(\\d+)((\\&[a-zA-Z]+\\=[^\\&]+))*)");
 
 	private final String name = "ardulink2";
 	private final byte[] separator = "\n".getBytes();
@@ -152,8 +150,7 @@ public class ArdulinkProtocol2 implements Protocol {
 		return toBytes(builder(keyPress, CHAR_PRESSED).withValue(
 				String.format("chr%scod%sloc%smod%smex%s",
 						keyPress.getKeychar(), keyPress.getKeycode(),
-						keyPress.getKeylocation(),
-						keyPress.getKeymodifiers(),
+						keyPress.getKeylocation(), keyPress.getKeymodifiers(),
 						keyPress.getKeymodifiersex())));
 	}
 
@@ -181,44 +178,38 @@ public class ArdulinkProtocol2 implements Protocol {
 	@Override
 	public FromDeviceMessage fromDevice(byte[] bytes) {
 		String in = new String(bytes);
-//		Matcher matcher = pattern.matcher(in);
-		
-		URI uri;
-		try {
-			uri = new URI(in);
-		} catch (Exception e) {
-			throw Throwables.propagate(e);
-		}
+		// Matcher matcher = pattern.matcher(in);
+
+		URI uri = URIs.newURI(in);
 
 		String alpPrefix = uri.getScheme();
-		String command = uri.getHost();
-		String specs = removeFirstSlash(uri.getPath());
-		String query = uri.getQuery();
-		
-		checkNotNull(alpPrefix, "Message hasn't a prefix");
-		checkNotNull(command,   "Message hasn't a command");
-		checkNotNull(specs,   "Message hasn't specs");
+		checkState("alp".equals(checkNotNull(alpPrefix,
+				"Message hasn't a prefix")),
+				"Message prefix isn't equal to alp. It is: %s", alpPrefix);
 
-		checkState(alpPrefix.equals("alp"), "Message prefix isn't equal to alp. It is: %s", alpPrefix);
-		
+		String command = checkNotNull(uri.getHost(), "Message hasn't a command");
+		String specs = removeFirstSlash(checkNotNull(uri.getPath(),
+				"Message hasn't specs"));
+		String query = uri.getQuery();
+
 		ALPProtocolKey key = ALPProtocolKey.fromString(command).getOrThrow(
 				"command %s not known", command);
 
 		if (key == READY) {
 			return new DefaultFromDeviceMessageReady();
 		} else if (key == RPLY) {
-			
+
 			Map<String, Object> params = getParamsFromQuery(query);
 
-			checkNotNull(params.get("id"), "Reply message needs for mandatory param: id");
-			String id = (String)params.get("id");
-			
+			checkNotNull(params.get("id"),
+					"Reply message needs for mandatory param: id");
+			String id = (String) params.get("id");
+
 			return new DefaultFromDeviceMessageReply(
-					specs.equalsIgnoreCase("ok"), checkNotNull(
+					"ok".equalsIgnoreCase(specs), checkNotNull(
 							Longs.tryParse(id), "%s not a long value", id)
-							.longValue()
-							, params);
-			
+							.longValue(), params);
+
 		} else if (key == ALPProtocolKey.CUSTOM_EVENT) {
 			return new DefaultFromDeviceMessageCustom(specs);
 		}
@@ -233,7 +224,8 @@ public class ArdulinkProtocol2 implements Protocol {
 		checkState(key != null && pin != null && value != null,
 				"key %s pin %s value %s", key, pin, value);
 		if (key == ANALOG_PIN_READ) {
-			return new DefaultFromDeviceMessagePinStateChanged(analogPin(pin), value);
+			return new DefaultFromDeviceMessagePinStateChanged(analogPin(pin),
+					value);
 		} else if (key == DIGITAL_PIN_READ) {
 			return new DefaultFromDeviceMessagePinStateChanged(digitalPin(pin),
 					toBoolean(value));
@@ -247,16 +239,13 @@ public class ArdulinkProtocol2 implements Protocol {
 		String[] p = query.split("&");
 		for (String param : p) {
 			int index = param.indexOf("=");
-			retvalue.put(param.substring(0, index), param.substring(index+1));
+			retvalue.put(param.substring(0, index), param.substring(index + 1));
 		}
 		return retvalue;
 	}
 
 	private String removeFirstSlash(String path) {
-		if(path != null && path.startsWith("/")) {
-			return path.substring(1);
-		}
-		return path;
+		return !path.startsWith("/") ? path : path.substring(1);
 	}
 
 	private IllegalStateException illegalPinType(Pin pin) {

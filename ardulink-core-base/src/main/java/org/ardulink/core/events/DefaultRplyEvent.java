@@ -28,9 +28,9 @@ import java.util.Map;
  */
 public class DefaultRplyEvent implements RplyEvent {
 
-	private boolean ok;
-	private long id;
-	private Map<String, Object> parameters;
+	private final boolean ok;
+	private final long id;
+	private final Map<String, Object> parameters;
 	
 	public DefaultRplyEvent(boolean ok, long id, Map<String, Object> parameters) {
 		this.ok = ok;
