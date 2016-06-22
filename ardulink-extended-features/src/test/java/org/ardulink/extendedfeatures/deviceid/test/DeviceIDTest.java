@@ -15,18 +15,23 @@ limitations under the License.
  */
 package org.ardulink.extendedfeatures.deviceid.test;
 
+import static org.ardulink.core.linkmanager.LinkConfig.NO_ATTRIBUTES;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import org.ardulink.core.AbstractListenerLink;
-import org.ardulink.core.Link;
-import org.ardulink.core.linkmanager.LinkManager;
+import org.ardulink.core.events.DefaultRplyEvent;
+import org.ardulink.core.messages.api.ToDeviceMessageCustom;
+import org.ardulink.core.messages.impl.DefaultToDeviceMessageCustom;
+import org.ardulink.core.proto.api.MessageIdHolder;
+import org.ardulink.core.virtual.VirtualLink;
 import org.ardulink.extendedfeatures.deviceid.DeviceID;
-import org.ardulink.util.Throwables;
-import org.ardulink.util.URIs;
+import org.ardulink.util.MapBuilder;
 import org.junit.Test;
 
 /**
@@ -39,33 +44,52 @@ import org.junit.Test;
  */
 public class DeviceIDTest {
 
-	private Link link = LinkManager.getInstance().getConfigurer(URIs.newURI("ardulink://virtual")).newLink();
+	private final AbstractListenerLink link = new VirtualLink(NO_ATTRIBUTES) {
 
+		private final Queue<DefaultRplyEvent> queue = new LinkedList<DefaultRplyEvent>();
+
+		@Override
+		public void sendCustomMessage(String... messages) throws IOException {
+			if (messages.length == 2 && messages[0].equals("getUniqueID")) {
+				logger.info("custom message unique ID request");
+				ToDeviceMessageCustom custom = addMessageIdIfNeeded(new DefaultToDeviceMessageCustom(
+						messages));
+				if (custom instanceof MessageIdHolder) {
+					long requestUniqueID = ((MessageIdHolder) custom).getId();
+					String uniqueIDSuggested = messages[1];
+					// requested device ID see DeviceID class
+					synchronized (queue) {
+						queue.add(new DefaultRplyEvent(true, requestUniqueID,
+								MapBuilder.<String, Object> newMapBuilder()
+										.put("UniqueID", uniqueIDSuggested)
+										.build()));
+					}
+				}
+
+			}
+
+		};
+
+		@Override
+		protected void sendRandomMessagesAndSleep() {
+			synchronized (queue) {
+				for (DefaultRplyEvent event : queue) {
+					fireReplyReceived(event);
+				}
+			}
+		};
+	};
 
 	@Test
-	public void getDeviceIDFirstTime() {
-		
-		DeviceID deviceID = new DeviceID((AbstractListenerLink)link);
-		String uid1 = null;
-		String uid2 = null;
-		String uid3 = null;
-		try {
-			
-			uid1 = deviceID.getUniqueID();
-			uid2 = deviceID.getUniqueID();
-			deviceID.clearCachedID();
-			uid3 = deviceID.getUniqueID();
-			
-		} catch (IOException e) {
-			throw Throwables.propagate(e);
-		}
-		
-		assertThat(uid1, notNullValue());
-		assertThat(uid2, notNullValue());
-		assertThat(uid3, notNullValue());
-		
-		assertEquals(uid1, uid2);
-		assertEquals(uid2, uid3);
+	public void canCreateDeviceId() throws IOException {
+		DeviceID deviceID = new DeviceID(link);
+		assertThat(deviceID.getUniqueID(), notNullValue());
 	}
-	
+
+	@Test
+	public void deviceIdDoesNotChange() throws IOException {
+		DeviceID deviceID = new DeviceID(link);
+		assertEquals(deviceID.getUniqueID(), deviceID.getUniqueID());
+	}
+
 }

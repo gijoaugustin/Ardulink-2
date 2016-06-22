@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
+ */
 
 package org.ardulink.core;
 
@@ -54,52 +54,46 @@ public abstract class AbstractListenerLink implements Link {
 	private boolean closed;
 
 	private static long messageCounter;
-	
-	private ThreadLocal<Long> localIdForRequest = new ThreadLocal<Long>();
+
+	private final ThreadLocal<Long> localIdForRequest = new ThreadLocal<Long>() {
+		@Override
+		protected Long initialValue() {
+			return nextId();
+		}
+	};
 
 	/**
-	 * @return a valid unique id to use in messages between Ardulink and controlled devices
+	 * @return a valid unique id to use in messages between Ardulink and
+	 *         controlled devices
 	 */
 	private synchronized long nextId() {
 		return ++messageCounter;
 	}
 
 	/**
-	 * Generates a Proxy implementing MessageIdHolder of T if there are RplyListeners registered to this Link
+	 * Generates a Proxy implementing MessageIdHolder of T if there are
+	 * RplyListeners registered to this Link
+	 * 
 	 * @param delegateTo
 	 * @return the proxy
 	 */
 	public <T> T addMessageIdIfNeeded(T delegateTo) {
-		
-		T retvalue = delegateTo;
-		if(!rplyListeners.isEmpty()) {
-			/*
-			 * Get the ID from ThreadLocal variable and clear the variable
-			 */
-			Long id = localIdForRequest.get();
-			localIdForRequest.set(null);
-			/*
-			 * If value was null I just take another ID since no one asked for a Local ID see nextLocalId
-			 */
-			if(id == null) {
-				id = nextId();
-			}
-			retvalue = addMessageId(delegateTo, id);
-		}
-		
-		return retvalue;
+		return rplyListeners.isEmpty() ? delegateTo : addMessageId(delegateTo,
+				localIdForRequest.get());
 	}
-	
+
 	/**
-	 * It inits and returns an ID that will be used from the next addMessageIdIfNeeded call.
-	 * @return
+	 * Initializes and returns an ID that will be used from the next
+	 * addMessageIdIfNeeded call.
+	 * 
+	 * @return the created (next) ID
 	 */
 	public long nextLocalId() {
 		Long id = Long.valueOf(nextId());
 		localIdForRequest.set(id);
 		return id;
 	}
-	
+
 	public Link addListener(EventListener listener) throws IOException {
 		if (!closed && listener instanceof FilteredEventListenerAdapter) {
 			Pin pin = ((FilteredEventListenerAdapter) listener).getPin();
@@ -144,7 +138,8 @@ public abstract class AbstractListenerLink implements Link {
 	}
 
 	@Override
-	public Link removeCustomListener(CustomListener listener) throws IOException {
+	public Link removeCustomListener(CustomListener listener)
+			throws IOException {
 		this.customListeners.remove(listener);
 		return this;
 	}
